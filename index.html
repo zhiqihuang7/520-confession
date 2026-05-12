@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>💕 给萱萱</title>
+  <style>
+    /* ========== 基础重置 ========== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Georgia', 'Noto Serif SC', serif;
+      background: #0a0a0a;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* ========== 密码页面 ========== */
+    #gate {
+      position: fixed; inset: 0; z-index: 1000;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #1a0a1e 0%, #0d0d1a 50%, #1a0a0a 100%);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    #gate.hidden {
+      opacity: 0; transform: scale(1.1);
+      pointer-events: none;
+    }
+    #gate h1 {
+      font-size: 2rem; font-weight: 300;
+      color: #f5c6d0; margin-bottom: 0.5rem;
+      letter-spacing: 0.3em;
+    }
+    #gate .subtitle {
+      font-size: 0.9rem; color: #a08090;
+      margin-bottom: 2rem; letter-spacing: 0.1em;
+    }
+    #gate input {
+      background: transparent; border: 1px solid #f5c6d0aa;
+      border-radius: 30px; padding: 14px 30px;
+      font-size: 1.1rem; color: #f5c6d0;
+      text-align: center; letter-spacing: 0.5em;
+      outline: none; width: 260px;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    #gate input:focus {
+      border-color: #f5c6d0;
+      box-shadow: 0 0 20px #f5c6d033;
+    }
+    #gate input::placeholder { color: #f5c6d066; letter-spacing: 0.2em; }
+    #gate .hint {
+      margin-top: 1rem; font-size: 0.8rem;
+      color: #806070; opacity: 0;
+      transition: opacity 0.3s;
+    }
+    #gate .hint.show { opacity: 1; }
+    #gate .gate-hint {
+      margin-top: 2.5rem; font-size: 0.75rem;
+      color: #605060; letter-spacing: 0.05em;
+    }
+
+    /* ========== 浮动爱心（密码页背景） ========== */
+    .gate-heart {
+      position: absolute; color: #f5c6d022;
+      font-size: 20px; animation: floatUp linear infinite;
+      pointer-events: none;
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* ========== 主内容（初始隐藏） ========== */
+    #main {
+      opacity: 0; transition: opacity 1.2s ease 0.5s;
+    }
+    #main.show { opacity: 1; }
+
+    /* ========== 全屏 Section 通用 ========== */
+    .section {
+      min-height: 100vh; display: flex;
+      flex-direction: column; align-items: center;
+      justify-content: center; padding: 60px 20px;
+      position: relative; overflow: hidden;
+    }
+
+    /* ========== Section 1: 开场 ========== */
+    .sec-intro {
+      background: linear-gradient(180deg, #0a0a0a 0%, #1a0a1e 100%);
+    }
+    .sec-intro .big-text {
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      font-weight: 300; color: #f5c6d0;
+      text-align: center; line-height: 1.4;
+      opacity: 0; transform: translateY(40px);
+      transition: all 1.2s ease;
+    }
+    .sec-intro .big-text.visible {
+      opacity: 1; transform: translateY(0);
+    }
+    .sec-intro .big-text .highlight {
+      color: #ff6b9d; font-weight: 400;
+    }
+    .sec-intro .scroll-hint {
+      position: absolute; bottom: 40px;
+      font-size: 0.8rem; color: #a0809066;
+      letter-spacing: 0.2em;
+      animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; transform: translateY(0); }
+      50% { opacity: 0.8; transform: translateY(5px); }
+    }
+
+    /* ========== Section 2: 心意 ========== */
+    .sec-message {
+      background: linear-gradient(180deg, #1a0a1e 0%, #0d1a1a 100%);
+    }
+    .message-card {
+      max-width: 600px; width: 90%;
+      background: #ffffff08; border: 1px solid #f5c6d022;
+      border-radius: 20px; padding: 50px 40px;
+      backdrop-filter: blur(10px);
+      opacity: 0; transform: translateY(40px);
+      transition: all 1s ease;
+    }
+    .message-card.visible {
+      opacity: 1; transform: translateY(0);
+    }
+    .message-card .label {
+      font-size: 0.75rem; color: #ff6b9d88;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .message-card p {
+      font-size: 1.1rem; line-height: 2;
+      color: #e8d0d8; font-weight: 300;
+    }
+    .message-card .signature {
+      margin-top: 2rem; text-align: right;
+      font-size: 0.9rem; color: #f5c6d0aa;
+      font-style: italic;
+    }
+
+    /* ========== Section 3: 时间线 ========== */
+    .sec-timeline {
+      background: linear-gradient(180deg, #0d1a1a 0%, #1a0d0a 100%);
+    }
+    .sec-timeline h2 {
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      font-weight: 300; color: #f5c6d0;
+      margin-bottom: 3rem; letter-spacing: 0.2em;
+      opacity: 0; transition: opacity 1s ease;
+    }
+    .sec-timeline h2.visible { opacity: 1; }
+    .timeline {
+      max-width: 500px; width: 90%; position: relative;
+    }
+    .timeline::before {
+      content: ''; position: absolute;
+      left: 20px; top: 0; bottom: 0;
+      width: 1px; background: linear-gradient(to bottom, transparent, #f5c6d044, transparent);
+    }
+    .timeline-item {
+      padding-left: 50px; margin-bottom: 40px;
+      position: relative; opacity: 0;
+      transform: translateX(-20px);
+      transition: all 0.8s ease;
+    }
+    .timeline-item.visible {
+      opacity: 1; transform: translateX(0);
+    }
+    .timeline-item::before {
+      content: ''; position: absolute;
+      left: 15px; top: 8px;
+      width: 11px; height: 11px;
+      border-radius: 50%; border: 2px solid #ff6b9d;
+      background: #0a0a0a;
+    }
+    .timeline-item .date {
+      font-size: 0.75rem; color: #ff6b9d88;
+      letter-spacing: 0.15em; margin-bottom: 0.5rem;
+    }
+    .timeline-item .event {
+      font-size: 1rem; color: #e8d0d8;
+      line-height: 1.6;
+    }
+
+    /* ========== Section 4: 星空许愿 ========== */
+    .sec-stars {
+      background: #0a0a0a;
+      min-height: 100vh; position: relative;
+    }
+    #star-canvas {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+    }
+    .stars-content {
+      position: relative; z-index: 1;
+      text-align: center; padding: 40px 20px;
+    }
+    .stars-content h2 {
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      font-weight: 300; color: #f5c6d0;
+      margin-bottom: 1rem; letter-spacing: 0.2em;
+      opacity: 0; transition: opacity 1s ease;
+    }
+    .stars-content h2.visible { opacity: 1; }
+    .stars-content .wish {
+      font-size: 1rem; color: #e8d0d888;
+      font-style: italic; margin-top: 0.5rem;
+      opacity: 0; transition: opacity 1s ease 0.3s;
+    }
+    .stars-content .wish.visible { opacity: 1; }
+
+    /* ========== Section 5: 结尾 ========== */
+    .sec-ending {
+      background: linear-gradient(180deg, #1a0d0a 0%, #0a0a0a 100%);
+    }
+    .ending-text {
+      text-align: center;
+      opacity: 0; transform: scale(0.95);
+      transition: all 1.2s ease;
+    }
+    .ending-text.visible {
+      opacity: 1; transform: scale(1);
+    }
+    .ending-text .big {
+      font-size: clamp(3rem, 10vw, 6rem);
+      font-weight: 300; color: #ff6b9d;
+      line-height: 1.2; margin-bottom: 1rem;
+    }
+    .ending-text .sub {
+      font-size: 1rem; color: #e8d0d8aa;
+      letter-spacing: 0.15em;
+    }
+    .ending-date {
+      margin-top: 3rem; font-size: 0.8rem;
+      color: #a0809066; letter-spacing: 0.2em;
+    }
+
+    /* ========== 粒子效果（主页面） ========== */
+    .particle {
+      position: fixed; pointer-events: none; z-index: 0;
+      border-radius: 50%; background: #ff6b9d44;
+      animation: drift linear infinite;
+    }
+    @keyframes drift {
+      0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+      20% { opacity: 0.6; }
+      80% { opacity: 0.6; }
+      100% { transform: translateY(-100vh) translateX(50px) scale(0); opacity: 0; }
+    }
+
+    /* ========== 点击爱心 ========== */
+    .click-heart {
+      position: fixed; pointer-events: none; z-index: 999;
+      font-size: 20px; color: #ff6b9d;
+      animation: heartPop 1s ease forwards;
+    }
+    @keyframes heartPop {
+      0% { transform: scale(0) translateY(0); opacity: 1; }
+      50% { transform: scale(1.5) translateY(-30px); opacity: 0.8; }
+      100% { transform: scale(0.5) translateY(-80px); opacity: 0; }
+    }
+
+    /* ========== 响应式 ========== */
+    @media (max-width: 600px) {
+      .message-card { padding: 35px 25px; }
+      .message-card p { font-size: 1rem; }
+      #gate h1 { font-size: 1.5rem; }
+      #gate input { width: 220px; padding: 12px 20px; }
+      .timeline-item { padding-left: 45px; }
+    }
+
+    /* ========== 自定义滚动条 ========== */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #0a0a0a; }
+    ::-webkit-scrollbar-thumb { background: #f5c6d044; border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+  <!-- ========== 密码门 ========== -->
+  <div id="gate">
+    <h1>给 萱 萱</h1>
+    <p class="subtitle">输入一个特别的数字</p>
+    <input type="text" id="pwd" placeholder="____" maxlength="8" autocomplete="off">
+    <p class="hint" id="hint">再想想看？</p>
+    <p class="gate-hint">💡 提示：一个对你很重要的日子</p>
+  </div>
+
+  <!-- ========== 主内容 ========== -->
+  <div id="main">
+
+    <!-- Section 1: 开场 -->
+    <section class="section sec-intro">
+      <div class="big-text" data-animate>
+        这个世界很大<br>
+        但遇见你<br>
+        是我最<span class="highlight">幸运</span>的事
+      </div>
+      <div class="scroll-hint">↓ 向下继续 ↓</div>
+    </section>
+
+    <!-- Section 2: 心意 -->
+    <section class="section sec-message">
+      <div class="message-card" data-animate>
+        <div class="label">💌 写给萱萱</div>
+        <p>
+          <!-- ✏️ 在这里写你想对萱萱说的话 -->
+          [ 在这里写下你的心意 ]
+          <br><br>
+          可以是你们的故事，可以是你的心情，
+          <br>
+          可以是任何你想告诉她的话。
+        </p>
+        <div class="signature">—— 永远喜欢你的人 ❤️</div>
+      </div>
+    </section>
+
+    <!-- Section 3: 时间线 -->
+    <section class="section sec-timeline">
+      <h2 data-animate>我们的故事</h2>
+      <div class="timeline">
+        <!-- ✏️ 添加你们的回忆节点 -->
+        <div class="timeline-item" data-animate>
+          <div class="date">那一天</div>
+          <div class="event">[ 我们相遇了 ]</div>
+        </div>
+        <div class="timeline-item" data-animate>
+          <div class="date">后来</div>
+          <div class="event">[ 一起做了很多事 ]</div>
+        </div>
+        <div class="timeline-item" data-animate>
+          <div class="date">现在</div>
+          <div class="event">[ 想和你一直走下去 ]</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: 星空 -->
+    <section class="section sec-stars">
+      <canvas id="star-canvas"></canvas>
+      <div class="stars-content">
+        <h2 data-animate>满天星辰，只为你闪</h2>
+        <p class="wish" data-animate">✨ 点击星空，许一个愿 ✨</p>
+      </div>
+    </section>
+
+    <!-- Section 5: 结尾 -->
+    <section class="section sec-ending">
+      <div class="ending-text" data-animate>
+        <div class="big">520</div>
+        <div class="sub">我爱你，萱萱 💕</div>
+      </div>
+      <div class="ending-date">2026.05.20</div>
+    </section>
+
+  </div>
+
+  <script>
+    // ========== 密码验证 ==========
+    const gate = document.getElementById('gate');
+    const pwdInput = document.getElementById('pwd');
+    const hint = document.getElementById('hint');
+    const main = document.getElementById('main');
+
+    // 🔑 修改这里的密码（萱萱的生日）
+    const PASSWORD = '0520';  // 示例，请改成真实生日
+
+    // 密码页浮动爱心
+    function createGateHearts() {
+      const hearts = ['💕', '💗', '💖', '✨', '🌸'];
+      const container = gate;
+      for (let i = 0; i < 15; i++) {
+        const el = document.createElement('div');
+        el.className = 'gate-heart';
+        el.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+        el.style.left = Math.random() * 100 + '%';
+        el.style.fontSize = (12 + Math.random() * 16) + 'px';
+        el.style.animationDuration = (8 + Math.random() * 12) + 's';
+        el.style.animationDelay = Math.random() * 10 + 's';
+        container.appendChild(el);
+      }
+    }
+    createGateHearts();
+
+    // 密码输入
+    pwdInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        if (pwdInput.value === PASSWORD) {
+          gate.classList.add('hidden');
+          setTimeout(() => {
+            gate.style.display = 'none';
+            main.classList.add('show');
+            initMain();
+          }, 800);
+        } else {
+          hint.classList.add('show');
+          pwdInput.style.borderColor = '#ff446688';
+          setTimeout(() => {
+            hint.classList.remove('show');
+            pwdInput.style.borderColor = '#f5c6d0aa';
+          }, 2000);
+        }
+      }
+    });
+
+    // 手机也支持点击"确认"
+    pwdInput.addEventListener('input', () => {
+      if (pwdInput.value.length >= 4) {
+        // 自动检查（可选：去掉这个 if 你想要必须按回车）
+      }
+    });
+
+    // ========== 主页面初始化 ==========
+    function initMain() {
+      initScrollAnimations();
+      initParticles();
+      initClickHearts();
+      initStarCanvas();
+    }
+
+    // ========== 滚动动画 ==========
+    function initScrollAnimations() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.2 });
+
+      document.querySelectorAll('[data-animate]').forEach(el => {
+        observer.observe(el);
+      });
+    }
+
+    // ========== 背景粒子 ==========
+    function initParticles() {
+      const colors = ['#ff6b9d33', '#f5c6d033', '#ff9de833'];
+      setInterval(() => {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.bottom = '-10px';
+        p.style.width = p.style.height = (3 + Math.random() * 5) + 'px';
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.animationDuration = (10 + Math.random() * 15) + 's';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 25000);
+      }, 500);
+    }
+
+    // ========== 点击冒爱心 ==========
+    function initClickHearts() {
+      const emojis = ['💕', '💗', '💖', '❤️', '✨', '🌸'];
+      document.addEventListener('click', (e) => {
+        for (let i = 0; i < 3; i++) {
+          const h = document.createElement('div');
+          h.className = 'click-heart';
+          h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+          h.style.left = (e.clientX + (Math.random() - 0.5) * 40) + 'px';
+          h.style.top = (e.clientY + (Math.random() - 0.5) * 20) + 'px';
+          document.body.appendChild(h);
+          setTimeout(() => h.remove(), 1000);
+        }
+      });
+    }
+
+    // ========== 星空 canvas ==========
+    function initStarCanvas() {
+      const canvas = document.getElementById('star-canvas');
+      const ctx = canvas.getContext('2d');
+      let w, h, stars = [];
+
+      function resize() {
+        w = canvas.width = canvas.offsetWidth;
+        h = canvas.height = canvas.offsetHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      // 生成星星
+      for (let i = 0; i < 150; i++) {
+        stars.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: Math.random() * 1.5 + 0.3,
+          speed: Math.random() * 0.3 + 0.05,
+          alpha: Math.random(),
+          da: (Math.random() - 0.5) * 0.01
+        });
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, w, h);
+        stars.forEach(s => {
+          s.alpha += s.da;
+          if (s.alpha > 1 || s.alpha < 0.1) s.da *= -1;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(245, 198, 208, ${s.alpha})`;
+          ctx.fill();
+          s.y -= s.speed;
+          if (s.y < -5) { s.y = h + 5; s.x = Math.random() * w; }
+        });
+        requestAnimationFrame(draw);
+      }
+      draw();
+
+      // 点击星空产生流星
+      canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        for (let i = 0; i < 5; i++) {
+          stars.push({
+            x: x + (Math.random() - 0.5) * 100,
+            y: y + (Math.random() - 0.5) * 100,
+            r: Math.random() * 2 + 1,
+            speed: Math.random() * 2 + 1,
+            alpha: 1,
+            da: -0.02
+          });
+        }
+        // 清理多余的星
+        setTimeout(() => { stars.length = Math.min(stars.length, 200); }, 3000);
+      });
+    }
+
+    // ========== 自动聚焦密码框 ==========
+    pwdInput.focus();
+  </script>
+
+</body>
+</html>
