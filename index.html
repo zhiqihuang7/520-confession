@@ -303,21 +303,21 @@
       position: fixed; pointer-events: none; z-index: 2;
       width: 2px; height: 2px;
       border-radius: 50%;
-      box-shadow: 0 0 6px 3px #fff, 0 0 12px 6px #f5c6d0;
+      box-shadow: 0 0 4px 2px #f5c6d088, 0 0 8px 4px #f5c6d044;
     }
     .meteor::after {
       content: '';
       position: absolute;
       top: 0; left: 0;
-      width: 80px; height: 1px;
-      background: linear-gradient(to right, #fff0, #f5c6d0, #fff0);
-      transform: rotate(-45deg);
+      width: 120px; height: 1px;
+      background: linear-gradient(to right, transparent, #f5c6d0bb, transparent);
       transform-origin: 0 0;
     }
     @keyframes meteorFall {
-      0% { opacity: 0; transform: translate(0, 0); }
-      10% { opacity: 1; }
-      100% { opacity: 0; transform: translate(-300px, 300px); }
+      0% { opacity: 0; }
+      15% { opacity: 1; }
+      70% { opacity: 0.8; }
+      100% { opacity: 0; }
     }
 
     /* ========== 响应式 ========== */
@@ -687,13 +687,33 @@
       function createMeteor() {
         const m = document.createElement('div');
         m.className = 'meteor';
-        m.style.left = Math.random() * 60 + '%';
-        m.style.top = Math.random() * 30 + '%';
-        m.style.animation = `meteorFall ${0.8 + Math.random() * 0.5}s linear forwards`;
+        const angle = -40 - Math.random() * 30; // 角度 -40 到 -70 度
+        const startX = 20 + Math.random() * 60;
+        const startY = 5 + Math.random() * 25;
+        const dur = 1.5 + Math.random() * 0.8;
+        m.style.cssText = `left:${startX}%;top:${startY}%;transform:rotate(${angle}deg);opacity:0;`;
         document.body.appendChild(m);
-        setTimeout(() => m.remove(), 1500);
+
+        let start = null;
+        function animate(ts) {
+          if (!start) start = ts;
+          const prog = (ts - start) / (dur * 1000);
+          if (prog < 0.15) {
+            m.style.opacity = prog / 0.15;
+          } else if (prog > 0.7) {
+            m.style.opacity = 1 - (prog - 0.7) / 0.3;
+          } else {
+            m.style.opacity = 1;
+          }
+          const tx = Math.cos(angle * Math.PI / 180) * 400 * prog;
+          const ty = Math.sin(angle * Math.PI / 180) * 400 * prog;
+          m.style.transform = `rotate(${angle}deg) translate(${tx}px, ${ty}px)`;
+          if (prog < 1) requestAnimationFrame(animate);
+          else m.remove();
+        }
+        requestAnimationFrame(animate);
       }
-      setInterval(createMeteor, 1500);
+      setInterval(createMeteor, 2000);
     }
 
     // ========== 主页面初始化 ==========
