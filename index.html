@@ -267,15 +267,15 @@
     .click-heart::after {
       content: '';
       position: absolute;
-      width: 20px; height: 20px;
+      width: 12px; height: 12px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #ff6b9d, #ff1493);
+      background: inherit;
     }
     .click-heart::before {
-      top: -10px; left: 0;
+      top: -6px; left: 4px;
     }
     .click-heart::after {
-      top: 0; left: 10px;
+      top: 4px; left: -6px;
     }
     @keyframes heartFloat {
       0% { transform: rotate(-45deg) scale(0) translateY(0); opacity: 1; }
@@ -284,8 +284,8 @@
     }
 
     /* ========== scroll snapping ========== */
-    html { scroll-behavior: smooth; scroll-snap-type: y proximity; }
-    .section { scroll-snap-align: start; }
+    html { scroll-behavior: smooth; scroll-snap-type: y mandatory; }
+    .section { scroll-snap-align: start; scroll-snap-stop: always; }
 
     /* ========== 呼吸星光（背景云层） ========== */
     .nebula {
@@ -675,8 +675,8 @@
           width:${size}px;height:${size}px;
           background:${colors[i % colors.length]}33;
           left:${Math.random() * 80}%;top:${Math.random() * 80}%;
-          animation-duration:${10 + Math.random() * 10}s;
-          animation-delay:${Math.random() * 5}s;
+          animation-duration:${8 + Math.random() * 8}s;
+          animation-delay:${Math.random() * 3}s;
         `;
         document.body.appendChild(neb);
       }
@@ -735,10 +735,10 @@
         p.style.bottom = '-10px';
         p.style.width = p.style.height = (3 + Math.random() * 5) + 'px';
         p.style.background = colors[Math.floor(Math.random() * colors.length)];
-        p.style.animationDuration = (10 + Math.random() * 15) + 's';
+        p.style.animationDuration = (8 + Math.random() * 10) + 's';
         document.body.appendChild(p);
-        setTimeout(() => p.remove(), 25000);
-      }, 500);
+        setTimeout(() => p.remove(), 18000);
+      }, 400);
     }
 
     // ========== 点击冒爱心 ==========
