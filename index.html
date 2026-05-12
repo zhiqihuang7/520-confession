@@ -309,8 +309,9 @@
       content: '';
       position: absolute;
       top: 0; left: 0;
-      width: 120px; height: 1px;
+      width: 100px; height: 1px;
       background: linear-gradient(to right, transparent, #f5c6d0bb, transparent);
+      transform: rotate(135deg);
       transform-origin: 0 0;
     }
     @keyframes meteorFall {
@@ -687,11 +688,8 @@
       function createMeteor() {
         const m = document.createElement('div');
         m.className = 'meteor';
-        const angle = -40 - Math.random() * 30; // 角度 -40 到 -70 度
-        const startX = 20 + Math.random() * 60;
-        const startY = 5 + Math.random() * 25;
         const dur = 1.5 + Math.random() * 0.8;
-        m.style.cssText = `left:${startX}%;top:${startY}%;transform:rotate(${angle}deg);opacity:0;`;
+        m.style.cssText = `left:${20 + Math.random() * 60}%;top:${5 + Math.random() * 15}%;opacity:0;`;
         document.body.appendChild(m);
 
         let start = null;
@@ -705,9 +703,9 @@
           } else {
             m.style.opacity = 1;
           }
-          const tx = Math.cos(angle * Math.PI / 180) * 400 * prog;
-          const ty = Math.sin(angle * Math.PI / 180) * 400 * prog;
-          m.style.transform = `rotate(${angle}deg) translate(${tx}px, ${ty}px)`;
+          const tx = (0.3 + Math.random() * 0.4) * 300 * prog;
+          const ty = 400 * prog;
+          m.style.transform = `translate(${tx}px, ${ty}px)`;
           if (prog < 1) requestAnimationFrame(animate);
           else m.remove();
         }
