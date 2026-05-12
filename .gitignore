@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build output
+dist/
+build/
+
+# Environment
+.env
+.env.local
+.env.*.local
