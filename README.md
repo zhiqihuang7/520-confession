@@ -3,7 +3,8 @@
 **创建时间:** 2026-05-12
 **截止日期:** 2026-05-20（520）
 **状态:** 🔵 开发中
-**网站:** https://www.dearxuan.love/
+**网站:** https://520-confession.vercel.app/
+**域名:** dearxuan.love（审核中，预计 2026-05-14 前通过）
 **GitHub:** https://github.com/zhiqihuang7/520-confession
 
 ## 目标
@@ -45,8 +46,7 @@
 - [x] 框架开发（密码页 + 5 个全屏 section + 粒子/星空动画）
 - [x] GitHub 仓库创建 + 代码推送
 - [x] Vercel 部署上线（https://520-confession.vercel.app/）
-- [x] 域名审核通过 + 绑定域名（dearxuan.love → www.dearxuan.love）
-- [x] DNS 配置完成（CNAME www + A @）
+- [ ] 域名审核通过 + 绑定域名
 - [ ] 内容填充（心意卡片、时间线节点）
 - [ ] 更多动画特效
 - [ ] 手机端优化测试
