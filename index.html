@@ -255,15 +255,39 @@
       100% { transform: translateY(-100vh) translateX(50px) scale(0); opacity: 0; }
     }
 
-    /* ========== 点击爱心 ========== */
+    /* ========== 点击爱心（CSS绘制） ========== */
     .click-heart {
       position: fixed; pointer-events: none; z-index: 999;
-      font-size: 20px; color: #ff6b9d;
-      animation: heartPop 1s ease forwards;
+      width: 20px; height: 20px;
+      animation: heartFloat 1s ease forwards;
     }
-    @keyframes heartPop {
+    .click-heart::before,
+    .click-heart::after {
+      content: '';
+      position: absolute;
+      width: 100%; height: 100%;
+      background: #ff6b9d;
+      border-radius: 50% 50% 0 0;
+    }
+    .click-heart::before {
+      left: 50%; transform: rotate(-45deg);
+      transform-origin: 0 100%;
+    }
+    .click-heart::after {
+      left: 0; transform: rotate(45deg);
+      transform-origin: 100% 100%;
+    }
+    .click-heart .heart-inner {
+      position: absolute;
+      width: 100%; height: 100%;
+      background: #ff6b9d;
+      border-radius: 50% 50% 0 0;
+      transform: rotate(-45deg);
+      transform-origin: 50% 100%;
+    }
+    @keyframes heartFloat {
       0% { transform: scale(0) translateY(0); opacity: 1; }
-      50% { transform: scale(1.5) translateY(-30px); opacity: 0.8; }
+      30% { transform: scale(1.2) translateY(-20px); opacity: 1; }
       100% { transform: scale(0.5) translateY(-80px); opacity: 0; }
     }
 
@@ -323,7 +347,7 @@
     <p class="subtitle">输入一个特别的数字</p>
     <input type="text" id="pwd" placeholder="____" maxlength="8" autocomplete="off">
     <p class="hint" id="hint">再想想看？提示：你的农历生日 🌙</p>
-    <p class="gate-hint">💡 提示：你每年都过的那个日子 🌙</p>
+    <p class="gate-hint">💡 想想看，是什么日子让你又长大一岁？</p>
   </div>
 
   <!-- ========== 主内容 ========== -->
@@ -723,16 +747,15 @@
 
     // ========== 点击冒爱心 ==========
     function initClickHearts() {
-      const emojis = ['💕', '💗', '💖', '❤️', '✨', '🌸'];
       document.addEventListener('click', (e) => {
         for (let i = 0; i < 3; i++) {
           const h = document.createElement('div');
           h.className = 'click-heart';
-          h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
           h.style.left = (e.clientX + (Math.random() - 0.5) * 40) + 'px';
           h.style.top = (e.clientY + (Math.random() - 0.5) * 20) + 'px';
+          h.style.animationDelay = (i * 0.1) + 's';
           document.body.appendChild(h);
-          setTimeout(() => h.remove(), 1000);
+          setTimeout(() => h.remove(), 1200);
         }
       });
     }
