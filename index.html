@@ -259,40 +259,28 @@
     .click-heart {
       position: fixed; pointer-events: none; z-index: 999;
       width: 20px; height: 20px;
+      background: linear-gradient(135deg, #ff6b9d, #ff1493);
+      transform: rotate(-45deg);
       animation: heartFloat 1.8s ease forwards;
     }
-    .click-heart .heart-inner {
-      position: relative;
-      width: 100%; height: 100%;
-    }
-    .click-heart .heart-inner::before,
-    .click-heart .heart-inner::after {
+    .click-heart::before,
+    .click-heart::after {
       content: '';
       position: absolute;
+      width: 20px; height: 20px;
       border-radius: 50%;
       background: linear-gradient(135deg, #ff6b9d, #ff1493);
     }
-    .click-heart .heart-inner::before {
-      width: 52%; height: 52%;
-      left: 0; top: 0;
+    .click-heart::before {
+      top: -10px; left: 0;
     }
-    .click-heart .heart-inner::after {
-      width: 52%; height: 52%;
-      right: 0; top: 0;
-    }
-    .click-heart .heart-point {
-      position: absolute;
-      width: 52%; height: 52%;
-      bottom: 0; left: 24%;
-      background: linear-gradient(135deg, #ff6b9d, #ff1493);
-      transform: rotate(45deg);
-      transform-origin: top left;
-      clip-path: polygon(0 0, 100% 0, 100% 100%);
+    .click-heart::after {
+      top: 0; left: 10px;
     }
     @keyframes heartFloat {
-      0% { transform: scale(0) translateY(0); opacity: 1; }
-      50% { transform: scale(1.3) translateY(-50px); opacity: 0.9; }
-      100% { transform: scale(0.6) translateY(-120px); opacity: 0; }
+      0% { transform: rotate(-45deg) scale(0) translateY(0); opacity: 1; }
+      50% { transform: rotate(-45deg) scale(1.3) translateY(-50px); opacity: 0.9; }
+      100% { transform: rotate(-45deg) scale(0.6) translateY(-120px); opacity: 0; }
     }
 
     /* ========== scroll snapping ========== */
@@ -758,8 +746,7 @@
       document.addEventListener('click', (e) => {
         const h = document.createElement('div');
         h.className = 'click-heart';
-        h.style.cssText = `left:${e.clientX - 10}px;top:${e.clientY - 10}px;transform:rotate(${Math.random() * 360}deg);`;
-        h.innerHTML = '<div class="heart-inner"><div class="heart-point"></div></div>';
+        h.style.cssText = `left:${e.clientX - 10}px;top:${e.clientY - 10}px;transform:rotate(-45deg) scale(1);`;
         document.body.appendChild(h);
         setTimeout(() => h.remove(), 1900);
       });
