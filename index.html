@@ -267,6 +267,39 @@
       100% { transform: scale(0.5) translateY(-80px); opacity: 0; }
     }
 
+    /* ========== 呼吸星光（背景云层） ========== */
+    .nebula {
+      position: fixed; pointer-events: none; z-index: 0;
+      border-radius: 50%; filter: blur(60px);
+      animation: nebulaPulse ease-in-out infinite;
+    }
+    @keyframes nebulaPulse {
+      0%, 100% { opacity: 0.15; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(1.1); }
+    }
+
+    /* ========== 流星 ========== */
+    .meteor {
+      position: fixed; pointer-events: none; z-index: 2;
+      width: 2px; height: 2px;
+      border-radius: 50%;
+      box-shadow: 0 0 4px 2px #fff, 0 0 8px 4px #f5c6d0;
+    }
+    .meteor::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 80px; height: 1px;
+      background: linear-gradient(to right, #fff0, #f5c6d0, #fff0);
+      transform: rotate(-45deg);
+      transform-origin: 0 0;
+    }
+    @keyframes meteorFall {
+      0% { opacity: 0; transform: translate(0, 0); }
+      10% { opacity: 1; }
+      100% { opacity: 0; transform: translate(-300px, 300px); }
+    }
+
     /* ========== 响应式 ========== */
     @media (max-width: 600px) {
       .message-card { padding: 35px 25px; }
@@ -611,6 +644,38 @@
       });
     }
 
+    // ========== 星云背景 ==========
+    function initNebula() {
+      const colors = ['#ff6b9d', '#f5c6d0', '#9d4edd', '#ff1493'];
+      for (let i = 0; i < 4; i++) {
+        const neb = document.createElement('div');
+        neb.className = 'nebula';
+        const size = 200 + Math.random() * 300;
+        neb.style.cssText = `
+          width:${size}px;height:${size}px;
+          background:${colors[i % colors.length]}33;
+          left:${Math.random() * 80}%;top:${Math.random() * 80}%;
+          animation-duration:${10 + Math.random() * 10}s;
+          animation-delay:${Math.random() * 5}s;
+        `;
+        document.body.appendChild(neb);
+      }
+    }
+
+    // ========== 流星划过 ==========
+    function initMeteors() {
+      function createMeteor() {
+        const m = document.createElement('div');
+        m.className = 'meteor';
+        m.style.left = Math.random() * 60 + '%';
+        m.style.top = Math.random() * 30 + '%';
+        m.style.animation = `meteorFall ${0.8 + Math.random() * 0.5}s linear forwards`;
+        document.body.appendChild(m);
+        setTimeout(() => m.remove(), 1500);
+      }
+      setInterval(createMeteor, 3000);
+    }
+
     // ========== 主页面初始化 ==========
     function initMain() {
       initScrollAnimations();
@@ -621,6 +686,8 @@
       initSakura();
       initGlow();
       initFireworks();
+      initNebula();
+      initMeteors();
     }
 
     // ========== 滚动动画 ==========
