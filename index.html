@@ -258,30 +258,36 @@
     /* ========== 点击爱心（CSS绘制） ========== */
     .click-heart {
       position: fixed; pointer-events: none; z-index: 999;
+      width: 20px; height: 20px;
       animation: heartFloat 1.8s ease forwards;
     }
     .click-heart .heart-inner {
-      width: 100%; height: 100%;
-      background: linear-gradient(135deg, #ff6b9d, #ff1493);
       position: relative;
+      width: 100%; height: 100%;
     }
     .click-heart .heart-inner::before,
     .click-heart .heart-inner::after {
       content: '';
       position: absolute;
-      width: 50%; height: 50%;
-      border-radius: 50% 50% 0 0;
+      border-radius: 50%;
       background: linear-gradient(135deg, #ff6b9d, #ff1493);
     }
     .click-heart .heart-inner::before {
+      width: 52%; height: 52%;
       left: 0; top: 0;
-      transform: rotate(-45deg);
-      transform-origin: 100% 100%;
     }
     .click-heart .heart-inner::after {
+      width: 52%; height: 52%;
       right: 0; top: 0;
+    }
+    .click-heart .heart-point {
+      position: absolute;
+      width: 52%; height: 52%;
+      bottom: 0; left: 24%;
+      background: linear-gradient(135deg, #ff6b9d, #ff1493);
       transform: rotate(45deg);
-      transform-origin: 0 100%;
+      transform-origin: top left;
+      clip-path: polygon(0 0, 100% 0, 100% 100%);
     }
     @keyframes heartFloat {
       0% { transform: scale(0) translateY(0); opacity: 1; }
@@ -290,8 +296,8 @@
     }
 
     /* ========== scroll snapping ========== */
-    html { scroll-snap-type: y mandatory; }
-    .section { scroll-snap-align: start; scroll-snap-stop: always; }
+    html { scroll-behavior: smooth; scroll-snap-type: y proximity; }
+    .section { scroll-snap-align: start; }
 
     /* ========== 呼吸星光（背景云层） ========== */
     .nebula {
@@ -752,9 +758,8 @@
       document.addEventListener('click', (e) => {
         const h = document.createElement('div');
         h.className = 'click-heart';
-        const size = 16 + Math.random() * 10;
-        h.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - size/2}px;top:${e.clientY - size/2}px;transform:rotate(${Math.random() * 360}deg);`;
-        h.innerHTML = '<div class="heart-inner"></div>';
+        h.style.cssText = `left:${e.clientX - 10}px;top:${e.clientY - 10}px;transform:rotate(${Math.random() * 360}deg);`;
+        h.innerHTML = '<div class="heart-inner"><div class="heart-point"></div></div>';
         document.body.appendChild(h);
         setTimeout(() => h.remove(), 1900);
       });
