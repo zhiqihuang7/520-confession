@@ -318,7 +318,7 @@
       0% { opacity: 0; transform: translate(0, 0); }
       20% { opacity: 1; }
       80% { opacity: 1; }
-      100% { opacity: 0; transform: translate(-300px, 300px); }
+      100% { opacity: 0; transform: translate(-390px, 390px); }
     }
 
     /* ========== 响应式 ========== */
@@ -690,7 +690,7 @@
         m.className = 'meteor';
         m.style.left = Math.random() * 80 + '%';
         m.style.top = Math.random() * 80 + '%';
-        m.style.animation = `meteorFall ${0.8 + Math.random() * 0.5}s linear forwards`;
+        m.style.animation = `meteorFall ${1 + Math.random() * 0.6}s linear forwards`;
         document.body.appendChild(m);
         setTimeout(() => m.remove(), 1500);
       }
