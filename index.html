@@ -289,8 +289,8 @@
     <h1>给 萱 萱</h1>
     <p class="subtitle">输入一个特别的数字</p>
     <input type="text" id="pwd" placeholder="____" maxlength="8" autocomplete="off">
-    <p class="hint" id="hint">再想想看？</p>
-    <p class="gate-hint">💡 提示：一个对你很重要的日子</p>
+    <p class="hint" id="hint">再想想看？提示：你的农历生日 🌙</p>
+    <p class="gate-hint">💡 提示：你每年都过的那个日子 🌙</p>
   </div>
 
   <!-- ========== 主内容 ========== -->
@@ -369,8 +369,8 @@
     const hint = document.getElementById('hint');
     const main = document.getElementById('main');
 
-    // 🔑 修改这里的密码（萱萱的生日）
-    const PASSWORD = '071029';
+    // 🔑 修改这里的密码（萱萱的农历生日）
+    const PASSWORD = '0919';
 
     // 密码页浮动爱心
     function createGateHearts() {
