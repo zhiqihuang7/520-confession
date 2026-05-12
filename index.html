@@ -370,7 +370,7 @@
     const main = document.getElementById('main');
 
     // 🔑 修改这里的密码（萱萱的生日）
-    const PASSWORD = '0520';  // 示例，请改成真实生日
+    const PASSWORD = '071029';
 
     // 密码页浮动爱心
     function createGateHearts() {
@@ -417,12 +417,210 @@
       }
     });
 
+    // ========== 打字机效果 ==========
+    function initTypewriter() {
+      const bigText = document.querySelector('.sec-intro .big-text');
+      if (!bigText) return;
+      const originalHTML = bigText.innerHTML;
+      const lines = [
+        { text: '这个世界很大', highlight: false },
+        { text: '但遇见你', highlight: false },
+        { text: '是我最幸运的事', highlight: true }
+      ];
+      bigText.innerHTML = '';
+      bigText.classList.add('visible');
+      bigText.style.opacity = '1';
+      bigText.style.transform = 'none';
+
+      let lineIdx = 0, charIdx = 0;
+      const cursor = document.createElement('span');
+      cursor.textContent = '|';
+      cursor.style.cssText = 'animation:blink 0.8s infinite;color:#ff6b9d;margin-left:2px;';
+      const style = document.createElement('style');
+      style.textContent = '@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}';
+      document.head.appendChild(style);
+
+      function type() {
+        if (lineIdx >= lines.length) { cursor.remove(); return; }
+        const line = lines[lineIdx];
+        if (charIdx === 0 && lineIdx > 0) bigText.appendChild(document.createElement('br'));
+        if (charIdx === 0) {
+          const span = document.createElement('span');
+          if (line.highlight) span.className = 'highlight';
+          span.dataset.line = lineIdx;
+          bigText.appendChild(span);
+        }
+        const currentSpan = bigText.querySelector(`span[data-line="${lineIdx}"]`);
+        if (charIdx < line.text.length) {
+          currentSpan.textContent += line.text[charIdx];
+          charIdx++;
+          if (cursor.parentNode) cursor.remove();
+          currentSpan.appendChild(cursor);
+          setTimeout(type, 80 + Math.random() * 60);
+        } else {
+          lineIdx++;
+          charIdx = 0;
+          setTimeout(type, 400);
+        }
+      }
+      setTimeout(type, 800);
+    }
+
+    // ========== 樱花飘落 ==========
+    function initSakura() {
+      const canvas = document.createElement('canvas');
+      canvas.id = 'sakura-canvas';
+      canvas.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:1;';
+      document.body.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+      let w, h, petals = [];
+
+      function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+      resize(); window.addEventListener('resize', resize);
+
+      class Petal {
+        constructor() { this.reset(); }
+        reset() {
+          this.x = Math.random() * w;
+          this.y = -20;
+          this.size = 6 + Math.random() * 8;
+          this.speedY = 0.8 + Math.random() * 1.2;
+          this.speedX = (Math.random() - 0.5) * 0.8;
+          this.rotation = Math.random() * Math.PI * 2;
+          this.rotSpeed = (Math.random() - 0.5) * 0.03;
+          this.opacity = 0.4 + Math.random() * 0.4;
+          this.wobble = Math.random() * Math.PI * 2;
+          this.wobbleSpeed = 0.02 + Math.random() * 0.02;
+        }
+        update() {
+          this.y += this.speedY;
+          this.wobble += this.wobbleSpeed;
+          this.x += this.speedX + Math.sin(this.wobble) * 0.5;
+          this.rotation += this.rotSpeed;
+          if (this.y > h + 20) this.reset();
+        }
+        draw() {
+          ctx.save();
+          ctx.translate(this.x, this.y);
+          ctx.rotate(this.rotation);
+          ctx.globalAlpha = this.opacity;
+          ctx.fillStyle = '#ffb6c1';
+          ctx.beginPath();
+          ctx.ellipse(0, 0, this.size, this.size * 0.6, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#ff69b444';
+          ctx.beginPath();
+          ctx.ellipse(this.size * 0.3, 0, this.size * 0.4, this.size * 0.3, 0.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      for (let i = 0; i < 30; i++) {
+        const p = new Petal();
+        p.y = Math.random() * h;
+        petals.push(p);
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, w, h);
+        petals.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
+
+    // ========== 鼠标光晕 ==========
+    function initGlow() {
+      const glow = document.createElement('div');
+      glow.style.cssText = `
+        position:fixed;pointer-events:none;z-index:2;
+        width:200px;height:200px;border-radius:50%;
+        background:radial-gradient(circle,#ff6b9d22,transparent 70%);
+        transform:translate(-50%,-50%);transition:opacity 0.3s;
+      `;
+      document.body.appendChild(glow);
+      document.addEventListener('mousemove', e => {
+        glow.style.left = e.clientX + 'px';
+        glow.style.top = e.clientY + 'px';
+      });
+    }
+
+    // ========== 结尾烟花 ==========
+    function initFireworks() {
+      const canvas = document.createElement('canvas');
+      canvas.id = 'firework-canvas';
+      canvas.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:3;';
+      document.body.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+      let w, h, fireworks = [], particles = [];
+
+      function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+      resize(); window.addEventListener('resize', resize);
+
+      class Firework {
+        constructor(x, y) {
+          const colors = ['#ff6b9d','#f5c6d0','#ff9de8','#ffb6c1','#ff1493','#fff0f5'];
+          for (let i = 0; i < 60; i++) {
+            const angle = (Math.PI * 2 / 60) * i;
+            const speed = 2 + Math.random() * 4;
+            particles.push({
+              x, y,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed,
+              life: 60 + Math.random() * 30,
+              maxLife: 90,
+              color: colors[Math.floor(Math.random() * colors.length)],
+              size: 1.5 + Math.random() * 2
+            });
+          }
+        }
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, w, h);
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.04;
+          p.vx *= 0.99;
+          p.life--;
+          ctx.globalAlpha = p.life / p.maxLife;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          if (p.life <= 0) particles.splice(i, 1);
+        }
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(animate);
+      }
+      animate();
+
+      // 点击结尾区域放烟花
+      document.querySelector('.sec-ending').addEventListener('click', e => {
+        for (let i = 0; i < 3; i++) {
+          setTimeout(() => {
+            new Firework(
+              e.clientX + (Math.random() - 0.5) * 200,
+              e.clientY + (Math.random() - 0.5) * 100
+            );
+          }, i * 200);
+        }
+      });
+    }
+
     // ========== 主页面初始化 ==========
     function initMain() {
       initScrollAnimations();
       initParticles();
       initClickHearts();
       initStarCanvas();
+      initTypewriter();
+      initSakura();
+      initGlow();
+      initFireworks();
     }
 
     // ========== 滚动动画 ==========
