@@ -377,6 +377,15 @@
       letter-spacing: 0.2em;
       animation: pulse 2s ease infinite;
     }
+    .click-hint {
+      position: absolute; bottom: 80px;
+      font-size: 0.7rem; color: #f5c6d066;
+      letter-spacing: 0.12em; text-align: center;
+      line-height: 1.7; opacity: 0;
+      transition: opacity 1.2s ease;
+      pointer-events: none; user-select: none;
+    }
+    .click-hint.show { opacity: 1; }
 
     /* ========== 开场页装饰 ========== */
     .intro-sparkle {
@@ -845,6 +854,7 @@
         是我最<span class="highlight">幸运</span>的事
       </div>
       <div class="scroll-hint">↓ 向下继续 ↓</div>
+      <div class="click-hint" id="clickHint">偷偷告诉你，每个页面都藏了不一样的惊喜 ✨<br>公主大人，点一点试试？💕</div>
     </section>
 
     <!-- Section 2: 心意 -->
@@ -1541,6 +1551,15 @@
       initIntroDecorations();
       initCursorEffect();
       initCountdown();
+
+      // 点击提示（延迟出现，提示有页面特效）
+      setTimeout(() => {
+        const hint = document.getElementById('clickHint');
+        if (hint) {
+          hint.classList.add('show');
+          setTimeout(() => hint.classList.remove('show'), 6000);
+        }
+      }, 2500);
     }
 
     // ========== 鼠标拖尾特效 ==========
