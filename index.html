@@ -765,12 +765,12 @@
     }
     .admin-preview .entry-hint {
       text-align: center;
-      font-size: 0.65rem;
+      font-size: 0.62rem;
       color: #f5c6d088;
-      line-height: 1.6;
-      letter-spacing: 0.08em;
+      line-height: 1.7;
+      letter-spacing: 0.06em;
       margin-bottom: 6px;
-      max-width: 160px;
+      max-width: 190px;
     }
     .admin-preview input {
       width: 90px; padding: 7px 14px;
@@ -828,7 +828,7 @@
 
   <!-- ========== 快捷密码入口（右下角，输入密码 0919 解锁全部内容） ========== -->
   <div class="admin-preview" id="adminPreview">
-    <div class="entry-hint">嘘… 想偷偷看的话<br>可以在这里输入密码哦 ✨</div>
+    <div class="entry-hint">不过我的萱萱公主在我这里永远有特权啦 💫<br>嘘…想偷偷看的话，可以在这里输入密码哦 ✨</div>
     <input type="password" id="adminPwd" placeholder="🔑" maxlength="8" autocomplete="off">
   </div>
 
@@ -1117,28 +1117,42 @@
           ];
           timeHint.textContent = '';
           wrap.appendChild(timeHint);
-          // 逐字出现效果
+          // 逐字出现效果（舒缓优雅）
           let curLine = 0, curChar = 0;
+          // 添加光标动画
+          if (!document.getElementById('cursorStyle')) {
+            const s = document.createElement('style');
+            s.id = 'cursorStyle';
+            s.textContent = '@keyframes cursorBlink{0%,100%{opacity:1}50%{opacity:0}}';
+            document.head.appendChild(s);
+          }
+          const CURSOR = '<span id="tcCursor" style="display:inline-block;width:1.5px;height:1em;background:#f5c6d0aa;margin-left:2px;animation:cursorBlink 0.8s step-end infinite;vertical-align:text-bottom;"></span>';
           const typeTimer = setInterval(() => {
             if (curLine === 0) {
               if (curChar < lines[0].length) {
                 curChar++;
-                timeHint.innerHTML = lines[0].substring(0, curChar);
+                timeHint.innerHTML = lines[0].substring(0, curChar) + CURSOR;
               } else {
-                timeHint.innerHTML = lines[0] + '<br>';
+                timeHint.innerHTML = lines[0] + '<br>' + CURSOR;
                 curLine = 1;
                 curChar = 0;
               }
             } else {
               if (curChar < lines[1].length) {
                 curChar++;
-                timeHint.innerHTML = lines[0] + '<br>' + lines[1].substring(0, curChar);
+                timeHint.innerHTML = lines[0] + '<br>' + lines[1].substring(0, curChar) + CURSOR;
               } else {
                 clearInterval(typeTimer);
-                setTimeout(() => { timeHint.remove(); timeHint = null; }, 2000);
+                const cEl = document.getElementById('tcCursor');
+                if (cEl) cEl.remove();
+                // 等 800ms 后出现密码框
+                setTimeout(() => {
+                  document.getElementById('adminPreview').classList.add('show');
+                }, 800);
+                setTimeout(() => { timeHint.remove(); timeHint = null; }, 3000);
               }
             }
-          }, 45);
+          }, 80);
           return;
         }
 
@@ -1969,8 +1983,8 @@
       const entryPwd = document.getElementById('adminPwd');
       const ENTRY_PWD = '0919';
 
-      // 立即显示（在第一页就能看到）
-      setTimeout(() => entryBox.classList.add('show'), 500);
+      // 不在页面加载时显示，等第一次点击信封后出现
+      //（见时间锁逻辑中 setTimeout 触发）
 
       // 统一关密码页 + 进主站（兼容企业微信的 X5 内核，不用 KeyboardEvent）
       entryPwd.addEventListener('keydown', (e) => {
