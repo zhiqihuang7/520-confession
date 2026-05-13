@@ -610,28 +610,6 @@
       50% { opacity: 0.3; transform: scale(1.1); }
     }
 
-    /* ========== 流星 ========== */
-    .meteor {
-      position: fixed; pointer-events: none; z-index: 2;
-      width: 2px; height: 2px;
-      border-radius: 50%;
-      box-shadow: 0 0 4px 2px #fff, 0 0 8px 4px #f5c6d0;
-    }
-    .meteor::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 80px; height: 1px;
-      background: linear-gradient(to right, #fff0, #f5c6d0, #fff0);
-      transform: rotate(-45deg);
-      transform-origin: 0 0;
-    }
-    @keyframes meteorFall {
-      0% { opacity: 0; transform: translate(0, 0); }
-      20% { opacity: 1; }
-      80% { opacity: 1; }
-      100% { opacity: 0; transform: translate(-507px, 507px); }
-    }
 
     /* ========== Section 6: 自白倒计时 ========== */
     .sec-countdown {
@@ -1522,19 +1500,7 @@
       }
     }
 
-    // ========== 流星划过 ==========
-    function initMeteors() {
-      function createMeteor() {
-        const m = document.createElement('div');
-        m.className = 'meteor';
-        m.style.left = Math.random() * 80 + '%';
-        m.style.top = Math.random() * 80 + '%';
-        m.style.animation = `meteorFall ${1.2 + Math.random() * 0.75}s linear forwards`;
-        document.body.appendChild(m);
-        setTimeout(() => m.remove(), 1500);
-      }
-      setInterval(createMeteor, 3000);
-    }
+
 
     // ========== 主页面初始化 ==========
     function initMain() {
@@ -1547,7 +1513,6 @@
       initGlow();
       initFireworks();
       initNebula();
-      initMeteors();
       initIntroDecorations();
       initCursorEffect();
       initCountdown();
@@ -1856,14 +1821,14 @@
       });
     }
 
-    // ========== 星空 canvas ==========
+    // ========== 星空 canvas + 流星（合并渲染，极速） ==========
     let starCanvasInitialized = false;
     function initStarCanvas() {
       if (starCanvasInitialized) return;
       starCanvasInitialized = true;
       const canvas = document.getElementById('star-canvas');
       const ctx = canvas.getContext('2d');
-      let w, h, stars = [];
+      let w, h, stars = [], meteors = [], meteorSpawner;
 
       function resize() {
         w = canvas.width = canvas.offsetWidth;
@@ -1872,11 +1837,10 @@
       resize();
       window.addEventListener('resize', resize);
 
-      // 生成星星
+      // 生成背景星星
       for (let i = 0; i < 150; i++) {
         stars.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
+          x: Math.random() * w, y: Math.random() * h,
           r: Math.random() * 1.5 + 0.3,
           speed: Math.random() * 0.3 + 0.05,
           alpha: Math.random(),
@@ -1884,8 +1848,26 @@
         });
       }
 
+      // 生成一颗背景流星（canvas 渲染，无 DOM 开销）
+      function spawnMeteor() {
+        const m = {
+          x: Math.random() * w * 0.8,
+          y: Math.random() * h * 0.4,
+          len: 60 + Math.random() * 40,
+          speed: 4 + Math.random() * 3,
+          alpha: 1,
+          w: 1.5 + Math.random() * 0.5
+        };
+        meteors.push(m);
+      }
+
+      // 启动定时生成（只一颗/次，稀疏散布）
+      meteorSpawner = setInterval(spawnMeteor, 4000);
+
       function draw() {
         ctx.clearRect(0, 0, w, h);
+
+        // 星星
         stars.forEach(s => {
           s.alpha += s.da;
           if (s.alpha > 1 || s.alpha < 0.1) s.da *= -1;
@@ -1896,6 +1878,34 @@
           s.y -= s.speed;
           if (s.y < -5) { s.y = h + 5; s.x = Math.random() * w; }
         });
+
+        // 流星（canvas 原生绘制，零 DOM）
+        for (let i = meteors.length - 1; i >= 0; i--) {
+          const m = meteors[i];
+          m.x -= m.speed * 0.6;
+          m.y += m.speed * 0.6;
+          m.alpha -= 0.012;
+          if (m.alpha <= 0) { meteors.splice(i, 1); continue; }
+
+          // 流星尾迹（渐变线段）
+          const grad = ctx.createLinearGradient(m.x, m.y, m.x - m.len, m.y + m.len);
+          grad.addColorStop(0, `rgba(255,255,255,${m.alpha})`);
+          grad.addColorStop(0.4, `rgba(245,198,208,${m.alpha * 0.7})`);
+          grad.addColorStop(1, 'rgba(245,198,208,0)');
+          ctx.beginPath();
+          ctx.moveTo(m.x, m.y);
+          ctx.lineTo(m.x - m.len, m.y + m.len);
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = m.w;
+          ctx.stroke();
+
+          // 流星头（发光光点）
+          ctx.beginPath();
+          ctx.arc(m.x, m.y, m.w * 1.2, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,255,255,${m.alpha})`;
+          ctx.fill();
+        }
+
         requestAnimationFrame(draw);
       }
       draw();
@@ -1903,19 +1913,18 @@
       // 点击星空产生流星
       canvas.addEventListener('click', (e) => {
         const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const cx = e.clientX - rect.left;
+        const cy = e.clientY - rect.top;
         for (let i = 0; i < 5; i++) {
           stars.push({
-            x: x + (Math.random() - 0.5) * 100,
-            y: y + (Math.random() - 0.5) * 100,
+            x: cx + (Math.random() - 0.5) * 100,
+            y: cy + (Math.random() - 0.5) * 100,
             r: Math.random() * 2 + 1,
             speed: Math.random() * 2 + 1,
             alpha: 1,
             da: -0.02
           });
         }
-        // 清理多余的星
         setTimeout(() => { stars.length = Math.min(stars.length, 200); }, 3000);
       });
     }
