@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>萱 💕</title>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js" onerror="console.warn('confetti CDN failed')"></script>
-  <script src="https://unpkg.com/cursor-effects@latest/dist/browser.js" onerror="console.warn('cursor-effects CDN failed')"></script>
   <style>
     /* ========== 基础重置 ========== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1297,13 +1295,17 @@
 
     // ========== 鼠标拖尾特效 ==========
     function initCursorEffect() {
-      try {
-        if (typeof FairyDustCursor !== 'undefined') {
-          new FairyDustCursor({
-            colors: ['#ff6b9d', '#f5c6d0', '#ffd700', '#ffb6c1']
-          });
-        }
-      } catch(e) { console.warn('cursor-effect init failed:', e); }
+      function setup() {
+        try {
+          if (typeof FairyDustCursor !== 'undefined') {
+            new FairyDustCursor({
+              colors: ['#ff6b9d', '#f5c6d0', '#ffd700', '#ffb6c1']
+            });
+          }
+        } catch(e) { console.warn('cursor-effect init failed:', e); }
+      }
+      if (typeof FairyDustCursor !== 'undefined') setup();
+      else window.addEventListener('load', setup);
     }
 
     // ========== 自白倒计时 ==========
@@ -1450,31 +1452,28 @@
 
     // ========== 点击冒爱心（canvas-confetti） ==========
     function initClickHearts() {
-      if (typeof confetti === 'undefined') return;
-      try {
-        const heartShape = confetti.shapeFromPath({
-          path: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
-          matrix: [0.04, 0, 0, 0.04, -0.5, -0.5]
-        });
-
-        document.addEventListener('click', (e) => {
-          if (!main.classList.contains('show')) return; // 只在主内容页生效
-          confetti({
-            particleCount: 6,
-            spread: 60,
-            startVelocity: 25,
-            gravity: 0.8,
-            ticks: 80,
-            origin: {
-              x: e.clientX / window.innerWidth,
-              y: e.clientY / window.innerHeight
-            },
-            shapes: [heartShape],
-            colors: ['#ff6b9d', '#f5c6d0', '#ff1493', '#ffb6c1', '#ffd700'],
-            scalar: 0.8 + Math.random() * 0.5
+      function setup() {
+        if (typeof confetti === 'undefined') return;
+        try {
+          const heartShape = confetti.shapeFromPath({
+            path: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
+            matrix: [0.04, 0, 0, 0.04, -0.5, -0.5]
           });
-        });
-      } catch(e) { console.warn('confetti init failed:', e); }
+          document.addEventListener('click', (e) => {
+            if (!main.classList.contains('show')) return;
+            confetti({
+              particleCount: 6, spread: 60, startVelocity: 25,
+              gravity: 0.8, ticks: 80,
+              origin: { x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight },
+              shapes: [heartShape],
+              colors: ['#ff6b9d', '#f5c6d0', '#ff1493', '#ffb6c1', '#ffd700'],
+              scalar: 0.8 + Math.random() * 0.5
+            });
+          });
+        } catch(e) { console.warn('confetti init failed:', e); }
+      }
+      if (typeof confetti !== 'undefined') setup();
+      else window.addEventListener('load', setup);
     }
 
     // ========== 星空 canvas ==========
@@ -1614,5 +1613,8 @@
     })();
   </script>
 
+  <!-- CDN 库（异步加载，不阻塞页面） -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js" async></script>
+  <script src="https://unpkg.com/cursor-effects@latest/dist/browser.js" async></script>
 </body>
 </html>
