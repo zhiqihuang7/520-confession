@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>自白倒计时 Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #050508;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Georgia', 'Noto Serif SC', serif;
+      color: #f5c6d0;
+      overflow: hidden;
+    }
+
+    /* ========== 星空背景 ========== */
+    .bg-stars {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    }
+    .bg-star {
+      position: absolute; border-radius: 50%;
+      background: #f5c6d0;
+      animation: twinkle ease-in-out infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.1; transform: scale(0.5); }
+      50% { opacity: 0.8; transform: scale(1); }
+    }
+
+    /* 极光 */
+    .aurora {
+      position: fixed; pointer-events: none; z-index: 0;
+      border-radius: 50%; filter: blur(100px);
+      animation: auroraDrift ease-in-out infinite;
+    }
+    @keyframes auroraDrift {
+      0%, 100% { opacity: 0.06; transform: translate(0, 0) scale(1); }
+      33% { opacity: 0.12; transform: translate(40px, -30px) scale(1.15); }
+      66% { opacity: 0.08; transform: translate(-30px, 20px) scale(0.9); }
+    }
+
+    /* ========== 主容器 ========== */
+    .container {
+      position: relative; z-index: 1;
+      text-align: center; padding: 40px 20px;
+    }
+
+    /* 顶部引言 */
+    .intro-text {
+      font-size: clamp(0.85rem, 3vw, 1.1rem);
+      color: #f5c6d088;
+      letter-spacing: 0.2em;
+      margin-bottom: 3rem;
+      opacity: 0; animation: fadeInUp 1.2s ease forwards 0.3s;
+    }
+
+    /* ========== 倒计时主体 ========== */
+    .countdown {
+      display: flex; gap: clamp(12px, 4vw, 30px);
+      justify-content: center; align-items: center;
+      margin-bottom: 3rem;
+    }
+
+    .countdown-block {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 12px;
+    }
+
+    /* 翻牌容器 */
+    .flip-card {
+      position: relative;
+      width: clamp(60px, 15vw, 100px);
+      height: clamp(80px, 20vw, 120px);
+      perspective: 400px;
+    }
+
+    .flip-card-inner {
+      position: absolute; inset: 0;
+      background: linear-gradient(145deg, #1a1020, #0e0a12);
+      border: 1px solid #f5c6d033;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow:
+        0 0 30px #f5c6d011,
+        inset 0 1px 0 #f5c6d018,
+        0 8px 30px #00000060;
+      overflow: hidden;
+    }
+
+    /* 中间分割线 */
+    .flip-card-inner::after {
+      content: '';
+      position: absolute;
+      left: 5%; right: 5%; top: 50%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #f5c6d022, transparent);
+    }
+
+    .flip-card .number {
+      font-size: clamp(2rem, 7vw, 3.5rem);
+      font-weight: 300;
+      color: #f5c6d0;
+      text-shadow: 0 0 20px #f5c6d044, 0 0 40px #f5c6d022;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* 光晕呼吸 */
+    .flip-card::before {
+      content: '';
+      position: absolute; inset: -8px;
+      border-radius: 18px;
+      background: radial-gradient(ellipse, #f5c6d015, transparent 70%);
+      animation: cardGlow 3s ease-in-out infinite;
+      z-index: -1;
+    }
+    @keyframes cardGlow {
+      0%, 100% { opacity: 0.4; transform: scale(0.95); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    .countdown-label {
+      font-size: clamp(0.6rem, 2vw, 0.8rem);
+      color: #f5c6d066;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+
+    /* 分隔符 */
+    .countdown-sep {
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      color: #f5c6d044;
+      animation: sepPulse 1s ease-in-out infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes sepPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.8; }
+    }
+
+    /* ========== 底部文字 ========== */
+    .bottom-text {
+      font-size: clamp(0.75rem, 2.5vw, 0.9rem);
+      color: #f5c6d055;
+      letter-spacing: 0.15em;
+      opacity: 0; animation: fadeInUp 1.2s ease forwards 0.8s;
+    }
+
+    /* ========== 浮动装饰 ========== */
+    .float-heart {
+      position: fixed; pointer-events: none; z-index: 0;
+      font-size: 16px; opacity: 0.15;
+      animation: heartFloat linear infinite;
+    }
+    @keyframes heartFloat {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.15; }
+      90% { opacity: 0.15; }
+      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* ========== 解锁后：自白内容 ========== */
+    .reveal-content {
+      position: fixed; inset: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 1s ease;
+    }
+    .reveal-content.show {
+      opacity: 1; pointer-events: auto;
+    }
+
+    /* 金色光芒 */
+    .golden-burst {
+      position: fixed; inset: 0; z-index: 99;
+      pointer-events: none;
+      opacity: 0;
+    }
+    .golden-burst.active {
+      animation: burstIn 2s ease-out forwards;
+    }
+    @keyframes burstIn {
+      0% { opacity: 0; }
+      10% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    .golden-ray {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 3px; height: 0;
+      background: linear-gradient(to top, #ffd70000, #ffd700aa, #ffd70000);
+      transform-origin: bottom center;
+      animation: rayShoot 1.5s ease-out forwards;
+    }
+    @keyframes rayShoot {
+      0% { height: 0; opacity: 0; }
+      20% { opacity: 1; }
+      100% { height: 50vh; opacity: 0; }
+    }
+
+    /* 自白文字 */
+    .reveal-text {
+      max-width: 500px; width: 90%;
+      text-align: center;
+      padding: 40px;
+    }
+    .reveal-text h2 {
+      font-size: clamp(1.5rem, 5vw, 2.2rem);
+      font-weight: 300; color: #ffd700;
+      letter-spacing: 0.3em;
+      margin-bottom: 2rem;
+      opacity: 0; transform: translateY(20px);
+      text-shadow: 0 0 30px #ffd70044;
+    }
+    .reveal-text p {
+      font-size: clamp(0.95rem, 3vw, 1.1rem);
+      line-height: 2.2; color: #f5c6d0;
+      font-weight: 300;
+      opacity: 0; transform: translateY(15px);
+    }
+    .reveal-text .line { display: block; }
+    .reveal-text h2.show { animation: lineReveal 1s ease forwards; }
+    .reveal-text p.show { animation: lineReveal 1s ease forwards; }
+    @keyframes lineReveal {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ========== 调试按钮 ========== */
+    .debug-btn {
+      position: fixed; bottom: 20px; right: 20px; z-index: 200;
+      background: #f5c6d022; border: 1px solid #f5c6d044;
+      color: #f5c6d0; padding: 8px 16px; border-radius: 20px;
+      cursor: pointer; font-size: 0.7rem;
+      transition: background 0.3s;
+    }
+    .debug-btn:hover { background: #f5c6d044; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 星空背景 -->
+  <div class="bg-stars" id="bgStars"></div>
+
+  <!-- 极光 -->
+  <div class="aurora" style="left:10%;top:20%;width:300px;height:180px;background:#ff6b9d18;animation-duration:10s;"></div>
+  <div class="aurora" style="right:15%;top:40%;width:250px;height:150px;background:#6b3a8a15;animation-duration:12s;animation-delay:3s;"></div>
+
+  <!-- 浮动爱心 -->
+  <div id="floatHearts"></div>
+
+  <!-- 主容器（倒计时） -->
+  <div class="container" id="countdownView">
+    <div class="intro-text">还有一份特别的话，想留到明天告诉你</div>
+
+    <div class="countdown">
+      <div class="countdown-block">
+        <div class="flip-card"><div class="flip-card-inner"><span class="number" id="days">00</span></div></div>
+        <div class="countdown-label">天</div>
+      </div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-block">
+        <div class="flip-card"><div class="flip-card-inner"><span class="number" id="hours">00</span></div></div>
+        <div class="countdown-label">时</div>
+      </div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-block">
+        <div class="flip-card"><div class="flip-card-inner"><span class="number" id="mins">00</span></div></div>
+        <div class="countdown-label">分</div>
+      </div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-block">
+        <div class="flip-card"><div class="flip-card-inner"><span class="number" id="secs">00</span></div></div>
+        <div class="countdown-label">秒</div>
+      </div>
+    </div>
+
+    <div class="bottom-text">📅 2026.05.21 · 00:00</div>
+  </div>
+
+  <!-- 金色光芒 -->
+  <div class="golden-burst" id="goldenBurst"></div>
+
+  <!-- 解锁后内容 -->
+  <div class="reveal-content" id="revealContent">
+    <div class="reveal-text">
+      <h2 id="revealTitle">致 萱</h2>
+      <p id="revealBody">
+        <span class="line">这是留给你的自白，</span>
+        <span class="line">每一句话都是认真的。</span>
+        <span class="line">（具体内容待填充）</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- 调试：跳过倒计时 -->
+  <button class="debug-btn" onclick="skipCountdown()">⏩ 跳过倒计时</button>
+
+  <script>
+    // ========== 目标时间 ==========
+    const TARGET = new Date('2026-05-21T00:00:00+08:00').getTime();
+
+    // ========== 星空背景 ==========
+    (function createBgStars() {
+      const container = document.getElementById('bgStars');
+      for (let i = 0; i < 80; i++) {
+        const s = document.createElement('div');
+        s.className = 'bg-star';
+        const size = 1 + Math.random() * 2;
+        s.style.cssText = `
+          left: ${Math.random() * 100}%;
+          top: ${Math.random() * 100}%;
+          width: ${size}px; height: ${size}px;
+          animation-duration: ${2 + Math.random() * 4}s;
+          animation-delay: ${Math.random() * 5}s;
+          box-shadow: 0 0 ${size * 3}px ${size}px #f5c6d033;
+        `;
+        container.appendChild(s);
+      }
+    })();
+
+    // ========== 浮动爱心 ==========
+    (function createFloatHearts() {
+      const container = document.getElementById('floatHearts');
+      const hearts = ['💕', '💗', '✨', '🌸', '💫'];
+      for (let i = 0; i < 8; i++) {
+        const h = document.createElement('div');
+        h.className = 'float-heart';
+        h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+        h.style.left = Math.random() * 100 + '%';
+        h.style.animationDuration = (12 + Math.random() * 18) + 's';
+        h.style.animationDelay = Math.random() * 15 + 's';
+        container.appendChild(h);
+      }
+    })();
+
+    // ========== 倒计时更新 ==========
+    const daysEl = document.getElementById('days');
+    const hoursEl = document.getElementById('hours');
+    const minsEl = document.getElementById('mins');
+    const secsEl = document.getElementById('secs');
+
+    function updateCountdown() {
+      const now = Date.now();
+      const diff = TARGET - now;
+
+      if (diff <= 0) {
+        unlockReveal();
+        return;
+      }
+
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+
+      daysEl.textContent = String(d).padStart(2, '0');
+      hoursEl.textContent = String(h).padStart(2, '0');
+      minsEl.textContent = String(m).padStart(2, '0');
+      secsEl.textContent = String(s).padStart(2, '0');
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // ========== 解锁动画 ==========
+    let unlocked = false;
+
+    function unlockReveal() {
+      if (unlocked) return;
+      unlocked = true;
+
+      // 隐藏倒计时
+      document.getElementById('countdownView').style.opacity = '0';
+      document.getElementById('countdownView').style.transition = 'opacity 1s ease';
+
+      // 金色光芒爆发
+      setTimeout(() => {
+        const burst = document.getElementById('goldenBurst');
+        burst.classList.add('active');
+
+        // 生成光芒射线
+        for (let i = 0; i < 24; i++) {
+          const ray = document.createElement('div');
+          ray.className = 'golden-ray';
+          const angle = (360 / 24) * i;
+          ray.style.transform = `translate(-50%, -100%) rotate(${angle}deg)`;
+          ray.style.animationDelay = (Math.random() * 0.3) + 's';
+          burst.appendChild(ray);
+        }
+      }, 800);
+
+      // 显示自白内容
+      setTimeout(() => {
+        const reveal = document.getElementById('revealContent');
+        reveal.classList.add('show');
+
+        // 标题逐行出现
+        setTimeout(() => {
+          document.getElementById('revealTitle').classList.add('show');
+        }, 500);
+
+        // 正文逐行出现
+        const lines = document.querySelectorAll('#revealBody .line');
+        lines.forEach((line, i) => {
+          setTimeout(() => {
+            line.style.opacity = '1';
+            line.style.transform = 'translateY(0)';
+            line.style.transition = 'all 0.8s ease';
+          }, 1200 + i * 600);
+        });
+      }, 2500);
+    }
+
+    // 调试：跳过
+    function skipCountdown() {
+      unlockReveal();
+    }
+  </script>
+
+</body>
+</html>
