@@ -386,7 +386,6 @@
       pointer-events: none; user-select: none;
     }
     .click-hint.show { opacity: 1; }
-    #fallHint { bottom: 115px; color: #f5c6d088; }
 
     /* ========== 开场页装饰 ========== */
     .intro-sparkle {
@@ -833,7 +832,7 @@
       </div>
       <div class="scroll-hint">↓ 向下继续 ↓</div>
       <div class="click-hint" id="clickHint">偷偷告诉你，每个页面都藏了不一样的惊喜 ✨<br>公主大人，点一点试试？💕</div>
-      <div class="click-hint" id="fallHint">等两秒，说不定有什么会掉下来呢 🌸</div>
+
     </section>
 
     <!-- Section 2: 心意 -->
@@ -1403,7 +1402,7 @@
         petals.forEach(p => { p.update(); p.draw(); });
         requestAnimationFrame(animate);
       }
-      setTimeout(() => animate(), 300); // 延迟启动，减少首屏压力
+      animate();
     }
 
     // ========== 鼠标光晕（GPU合成加速） ==========
@@ -1531,14 +1530,7 @@
         }
       }, 2500);
 
-      // 花瓣掉落提示
-      setTimeout(() => {
-        const fh = document.getElementById('fallHint');
-        if (fh) {
-          fh.classList.add('show');
-          setTimeout(() => fh.classList.remove('show'), 3000);
-        }
-      }, 1000);
+
     }
 
     // ========== 鼠标点击星光（轻量版，取代FairyDustCursor） ==========
