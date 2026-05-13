@@ -1489,7 +1489,7 @@
 
     // ========== 自白倒计时 ==========
     function initCountdown() {
-      const TARGET = new Date('2026-05-20T00:00:00+08:00').getTime();
+      const TARGET = new Date('2026-05-21T00:00:00+08:00').getTime();
       const daysEl = document.getElementById('cd-days');
       const hoursEl = document.getElementById('cd-hours');
       const minsEl = document.getElementById('cd-mins');
@@ -1911,91 +1911,17 @@
       setTimeout(() => entryBox.classList.add('show'), 500);
 
       // 统一关密码页 + 进主站（兼容企业微信的 X5 内核，不用 KeyboardEvent）
-      function closeGateAndShowMain() {
-        const gEl = document.getElementById('gate');
-        const mEl = document.getElementById('main');
-        if (!gEl || gEl.classList.contains('hidden')) return;
-        gEl.classList.add('hidden');
-        setTimeout(() => {
-          gEl.style.display = 'none';
-          if (mEl) {
-            mEl.classList.add('show');
-            if (typeof initMain === 'function') initMain();
-          }
-        }, 800);
-      }
-
       entryPwd.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           if (entryPwd.value === ENTRY_PWD) {
             entryPwd.value = '';
             window.__bypassTimeLock = true; // 解锁时间锁
 
-            const envEl = document.getElementById('envelope');
-
-            // 判断信封是否已打开
-            const cardEl = document.querySelector('.envelope-card');
-            if (cardEl && !cardEl.classList.contains('rise')) {
-              // 信封未开：点击信封触发动画，再关密码页
-              const wrap = document.querySelector('.envelope-wrap');
-              if (wrap) { wrap.click(); }
-              setTimeout(() => {
-                if (envEl) { envEl.classList.add('fade-out'); }
-                document.getElementById('adminPreview').classList.remove('show');
-                setTimeout(() => {
-                  if (envEl) { envEl.style.display = 'none'; }
-                  closeGateAndShowMain();
-                }, 800);
-              }, 1500);
-            } else {
-              // 信封已开：直接关密码页
-              closeGateAndShowMain();
-            }
-
-            // 导航到最后一页 + 解锁隐藏内容
-            setTimeout(() => {
-              if (typeof window.goToPage === 'function') {
-                window.goToPage(5);
-              }
-              const rc = document.getElementById('revealContent');
-              if (rc && !rc.classList.contains('show')) {
-                document.querySelectorAll('.countdown, .countdown-intro, .countdown-date').forEach(el => {
-                  el.style.opacity = '0';
-                  el.style.transition = 'opacity 1s ease';
-                });
-                const sec = document.querySelector('.sec-countdown');
-                if (sec) {
-                  for (let i = 0; i < 20; i++) {
-                    const ray = document.createElement('div');
-                    ray.style.cssText = [
-                      'position:absolute;top:50%;left:50%;',
-                      'width:2px;height:0;',
-                      'background:linear-gradient(to top,transparent,#ffd700aa,transparent);',
-                      'transform-origin:bottom center;',
-                      `transform:translate(-50%,-100%) rotate(${(360/20)*i}deg);`,
-                      'animation:rayShoot 1.5s ease-out forwards;',
-                      `animation-delay:${Math.random()*0.3}s;`,
-                      'pointer-events:none;z-index:5;'
-                    ].join('');
-                    sec.appendChild(ray);
-                  }
-                }
-                setTimeout(() => {
-                  rc.classList.add('show');
-                  setTimeout(() => {
-                    const t = document.getElementById('revealTitle');
-                    if (t) t.classList.add('show');
-                  }, 500);
-                  document.querySelectorAll('.rline').forEach((line, i) => {
-                    setTimeout(() => {
-                      line.style.opacity = '1';
-                      line.style.transform = 'translateY(0)';
-                      line.style.transition = 'all 0.8s ease';
-                    }, 1200 + i * 600);
-                  });
-                }, 2500);
-              }
-            }, 3000);
+            // 只是打开信封，不走捷径
+            // 后面让用户正常走流程：点卡片 → 密码页 → 输入密码 → 进主站
+            const wrap = document.querySelector('.envelope-wrap');
+            if (wrap) { wrap.click(); }
+            document.getElementById('adminPreview').classList.remove('show');
           } else {
             entryPwd.style.borderColor = '#ff446688';
             setTimeout(() => entryPwd.style.borderColor = '#f5c6d033', 2000);
