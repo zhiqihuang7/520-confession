@@ -168,6 +168,12 @@
       0%, 100% { opacity: 0.3; }
       50% { opacity: 0.8; }
     }
+    /* 时间锁晃动 */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); }
+      20%, 40%, 60%, 80% { transform: translateX(6px); }
+    }
     /* 点击发光消散 */
     .guide-line.glow-out { animation: lineGlowOut 0.8s ease-out forwards; }
     @keyframes lineGlowOut {
@@ -730,6 +736,34 @@
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: #0a0a0a; }
     ::-webkit-scrollbar-thumb { background: #f5c6d044; border-radius: 2px; }
+
+    /* ========== 管理员预览框（右下角小密码） ========== */
+    .admin-preview {
+      position: fixed; bottom: 20px; right: 20px;
+      z-index: 9999; opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+    .admin-preview.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .admin-preview input {
+      width: 80px; padding: 6px 12px;
+      background: rgba(10,10,10,0.6);
+      border: 1px solid #f5c6d033;
+      border-radius: 20px;
+      color: #f5c6d0;
+      font-size: 0.7rem; text-align: center;
+      outline: none; letter-spacing: 0.2em;
+      backdrop-filter: blur(4px);
+      transition: all 0.3s ease;
+    }
+    .admin-preview input:focus {
+      border-color: #f5c6d066;
+      box-shadow: 0 0 10px #f5c6d022;
+    }
+    .admin-preview input::placeholder { color: #f5c6d033; }
   </style>
 </head>
 <body>
@@ -763,6 +797,11 @@
     <input type="text" id="pwd" placeholder="____" maxlength="8" autocomplete="off">
     <p class="hint" id="hint">再想想？提示：🌙 你每年都过的那个农历日子</p>
     <p class="gate-hint">💡 农历月份 + 日期，一共四位哦</p>
+  </div>
+
+  <!-- ========== 管理员预览框（右下角，给 Joey 提前看隐藏内容） ========== -->
+  <div class="admin-preview" id="adminPreview">
+    <input type="password" id="adminPwd" placeholder="🔑" maxlength="8" autocomplete="off">
   </div>
 
   <!-- ========== 主内容 ========== -->
@@ -1025,8 +1064,11 @@
       wrap.addEventListener('click', () => {
         if (opened) return;
 
-        // 时间未到：显示提示
-        if (Date.now() < OPEN_TIME) {
+        // 时间未到：晃动 + 显示提示
+        if (Date.now() < OPEN_TIME && !window.__bypassTimeLock) {
+          // 晃动效果
+          wrap.style.animation = 'shake 0.5s ease';
+          setTimeout(() => { wrap.style.animation = ''; }, 500);
           if (timeHint) return;
           timeHint = document.createElement('div');
           timeHint.style.cssText = `
@@ -1034,7 +1076,6 @@
             font-size:0.8rem;color:#f5c6d0aa;letter-spacing:0.15em;
             white-space:nowrap;animation:fadeInUp .6s ease;
           `;
-          // 计算剩余时间
           const diff = OPEN_TIME - Date.now();
           const d = Math.floor(diff / 86400000);
           const h = Math.floor((diff % 86400000) / 3600000);
@@ -1530,17 +1571,55 @@
     function initIntroDecorations() {
       const section = document.querySelector('.sec-intro');
       if (!section) return;
-      for (let i = 0; i < 8; i++) {
+
+      // 丰富的小星光粒子（从 8 增加到 30）
+      for (let i = 0; i < 30; i++) {
         const sp = document.createElement('div');
         sp.className = 'intro-sparkle';
-        sp.style.cssText = `left:${10 + Math.random() * 80}%;top:${20 + Math.random() * 60}%;animation-delay:${Math.random() * 2}s;width:${2 + Math.random() * 3}px;height:${2 + Math.random() * 3}px;`;
+        const size = 1 + Math.random() * 3;
+        const isBig = Math.random() < 0.15; // 15% 的大星星
+        sp.style.cssText = [
+          `left: ${Math.random() * 100}%;`,
+          `top: ${Math.random() * 100}%;`,
+          `animation-delay: ${Math.random() * 4}s;`,
+          `animation-duration: ${1.5 + Math.random() * 3}s;`,
+          `width: ${isBig ? size * 2.5 : size}px;`,
+          `height: ${isBig ? size * 2.5 : size}px;`,
+          isBig ? `box-shadow: 0 0 ${size * 5}px ${size * 2}px #f5c6d066;` : '',
+          isBig ? `background: #ffd700;` : ''
+        ].join('');
         section.appendChild(sp);
       }
-      for (let i = 0; i < 6; i++) {
+
+      // 金色大星星（缓慢呼吸，像远处的恒星）
+      for (let i = 0; i < 8; i++) {
+        const big = document.createElement('div');
+        big.style.cssText = [
+          'position: absolute; pointer-events: none;',
+          `left: ${Math.random() * 100}%;`,
+          `top: ${Math.random() * 100}%;`,
+          'width: 3px; height: 3px; border-radius: 50%;',
+          'background: #ffd700;',
+          'box-shadow: 0 0 6px 3px #ffd70044, 0 0 12px 6px #ffd70022;',
+          `animation: gateStarTwinkle ${3 + Math.random() * 4}s ease-in-out infinite;`,
+          `animation-delay: ${Math.random() * 3}s;`
+        ].join('');
+        section.appendChild(big);
+      }
+
+      // 更丰富的浮动元素（爱心+星星符号）
+      const symbols = ['💕', '💗', '🌸', '✨', '✦', '✧', '💖'];
+      for (let i = 0; i < 15; i++) {
         const h = document.createElement('div');
         h.className = 'intro-heart';
-        h.textContent = ['💕', '💗', '🌸', '✨'][Math.floor(Math.random() * 4)];
-        h.style.cssText = `left:${5 + Math.random() * 90}%;top:${10 + Math.random() * 80}%;animation-delay:${Math.random() * 3}s;font-size:${10 + Math.random() * 10}px;`;
+        h.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        h.style.cssText = [
+          `left: ${Math.random() * 100}%;`,
+          `top: ${Math.random() * 100}%;`,
+          `animation-delay: ${Math.random() * 4}s;`,
+          `animation-duration: ${2 + Math.random() * 3}s;`,
+          `font-size: ${7 + Math.random() * 15}px;`,
+        ].join('');
         section.appendChild(h);
       }
     }
@@ -1805,6 +1884,81 @@
 
       // 初始触发动画
       triggerAnimations(sections[0]);
+
+      // 暴露翻页函数给全局（管理员预览用）
+      window.goToPage = goToPage;
+    })();
+
+    // ========== 管理员预览：右下角小框，输入密码可提前解锁隐藏内容 ==========
+    (function initAdminPreview() {
+      const adminPreview = document.getElementById('adminPreview');
+      const adminPwd = document.getElementById('adminPwd');
+      const ADMIN_PWD = '0919';
+
+      // 主页面显示后，显示管理员预览框
+      const mainEl = document.getElementById('main');
+      const observer = new MutationObserver(() => {
+        if (mainEl.classList.contains('show')) {
+          adminPreview.classList.add('show');
+          observer.disconnect();
+        }
+      });
+      observer.observe(mainEl, { attributes: true, attributeFilter: ['class'] });
+
+      adminPwd.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          if (adminPwd.value === ADMIN_PWD) {
+            adminPwd.value = '';
+            // 导航到最后一页（自白倒计时）
+            if (typeof window.goToPage === 'function') {
+              window.goToPage(5);
+            }
+            // 如果还没解锁，手动触发解锁
+            const revealContent = document.getElementById('revealContent');
+            if (revealContent && !revealContent.classList.contains('show')) {
+              // 隐藏倒计时区域
+              document.querySelectorAll('.countdown, .countdown-intro, .countdown-date').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transition = 'opacity 1s ease';
+              });
+              // 金色光芒
+              const section = document.querySelector('.sec-countdown');
+              for (let i = 0; i < 20; i++) {
+                const ray = document.createElement('div');
+                ray.style.cssText = [
+                  'position:absolute;top:50%;left:50%;',
+                  'width:2px;height:0;',
+                  'background:linear-gradient(to top,transparent,#ffd700aa,transparent);',
+                  'transform-origin:bottom center;',
+                  `transform:translate(-50%,-100%) rotate(${(360/20)*i}deg);`,
+                  'animation:rayShoot 1.5s ease-out forwards;',
+                  `animation-delay:${Math.random()*0.3}s;`,
+                  'pointer-events:none;z-index:5;'
+                ].join('');
+                section.appendChild(ray);
+              }
+              // 显示自白内容
+              setTimeout(() => {
+                revealContent.classList.add('show');
+                setTimeout(() => {
+                  const title = document.getElementById('revealTitle');
+                  if (title) title.classList.add('show');
+                }, 500);
+                document.querySelectorAll('.rline').forEach((line, i) => {
+                  setTimeout(() => {
+                    line.style.opacity = '1';
+                    line.style.transform = 'translateY(0)';
+                    line.style.transition = 'all 0.8s ease';
+                  }, 1200 + i * 600);
+                });
+              }, 2500);
+            }
+          } else {
+            adminPwd.style.borderColor = '#ff446688';
+            setTimeout(() => adminPwd.style.borderColor = '#f5c6d033', 2000);
+          }
+        }
+      });
     })();
   </script>
 
