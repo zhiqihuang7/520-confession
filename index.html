@@ -517,7 +517,7 @@
     #main { height: 100%; overflow: hidden; }
     .page-container {
       height: 100%;
-      transition: transform 0.55s cubic-bezier(0.25, 0.1, 0.25, 1);
+      transition: transform 0.63s cubic-bezier(0.25, 0.1, 0.25, 1);
       will-change: transform;
     }
     .section {
@@ -1304,8 +1304,13 @@
           }
         } catch(e) { console.warn('cursor-effect init failed:', e); }
       }
-      if (typeof FairyDustCursor !== 'undefined') setup();
-      else window.addEventListener('load', setup);
+      if (typeof FairyDustCursor !== 'undefined') { setup(); }
+      else {
+        const check = setInterval(() => {
+          if (typeof FairyDustCursor !== 'undefined') { clearInterval(check); setup(); }
+        }, 200);
+        setTimeout(() => clearInterval(check), 5000);
+      }
     }
 
     // ========== 自白倒计时 ==========
@@ -1461,19 +1466,28 @@
           });
           document.addEventListener('click', (e) => {
             if (!main.classList.contains('show')) return;
-            confetti({
-              particleCount: 6, spread: 60, startVelocity: 25,
-              gravity: 0.8, ticks: 80,
-              origin: { x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight },
-              shapes: [heartShape],
-              colors: ['#ff6b9d', '#f5c6d0', '#ff1493', '#ffb6c1', '#ffd700'],
-              scalar: 0.8 + Math.random() * 0.5
-            });
+            try {
+              confetti({
+                particleCount: 6, spread: 60, startVelocity: 25,
+                gravity: 0.8, ticks: 80,
+                origin: { x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight },
+                shapes: [heartShape],
+                colors: ['#ff6b9d', '#f5c6d0', '#ff1493', '#ffb6c1', '#ffd700'],
+                scalar: 0.8 + Math.random() * 0.5
+              });
+            } catch(e) { console.warn('confetti fire failed:', e); }
           });
         } catch(e) { console.warn('confetti init failed:', e); }
       }
-      if (typeof confetti !== 'undefined') setup();
-      else window.addEventListener('load', setup);
+      if (typeof confetti !== 'undefined') { setup(); }
+      else {
+        // 轮询等待 CDN 加载
+        const check = setInterval(() => {
+          if (typeof confetti !== 'undefined') { clearInterval(check); setup(); }
+        }, 200);
+        // 5秒后放弃
+        setTimeout(() => clearInterval(check), 5000);
+      }
     }
 
     // ========== 星空 canvas ==========
@@ -1576,7 +1590,7 @@
         updateDots();
         // 触发当前页动画
         triggerAnimations(sections[current]);
-        setTimeout(() => { isTransitioning = false; }, 600);
+        setTimeout(() => { isTransitioning = false; }, 700);
       }
 
       // 鼠标滚轮
