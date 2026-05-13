@@ -285,10 +285,12 @@
 
     /* ========== 全屏 Section 通用 ========== */
     .section {
-      min-height: 100vh; display: flex;
+      height: 100vh; min-height: 100vh;
+      display: flex;
       flex-direction: column; align-items: center;
       justify-content: center; padding: 60px 20px;
       position: relative; overflow: hidden;
+      flex-shrink: 0;
     }
 
     /* ========== Section 1: 开场 ========== */
@@ -515,9 +517,42 @@
       100% { transform: rotate(-45deg) scale(0.7) translateY(-120px); opacity: 0; }
     }
 
-    /* ========== scroll snapping ========== */
-    html { scroll-behavior: smooth; scroll-snap-type: y proximity; }
-    .section { scroll-snap-align: start; }
+    /* ========== 翻页模式 ========== */
+    html, body { overflow: hidden; height: 100%; }
+    #main { height: 100%; overflow: hidden; }
+    .page-container {
+      height: 100%;
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform;
+    }
+    .section {
+      height: 100vh; min-height: 100vh;
+      scroll-snap-align: unset;
+    }
+
+    /* 页码指示器 */
+    .page-dots {
+      position: fixed; right: 16px; top: 50%;
+      transform: translateY(-50%);
+      z-index: 100;
+      display: flex; flex-direction: column;
+      gap: 10px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .page-dots.show { opacity: 1; }
+    .page-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #f5c6d044;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .page-dot.active {
+      background: #f5c6d0;
+      box-shadow: 0 0 6px #f5c6d088;
+      transform: scale(1.3);
+    }
 
     /* ========== 呼吸星光（背景云层） ========== */
     .nebula {
@@ -603,6 +638,8 @@
 
   <!-- ========== 主内容 ========== -->
   <div id="main">
+    <div class="page-dots" id="pageDots"></div>
+    <div class="page-container" id="pageContainer">
 
     <!-- Section 1: 开场 -->
     <section class="section sec-intro">
@@ -668,7 +705,8 @@
       <div class="ending-date">2026.05.20</div>
     </section>
 
-  </div>
+    </div><!-- end page-container -->
+  </div><!-- end main -->
 
   <script>
     // ========== 信封逻辑 ==========
@@ -1095,17 +1133,19 @@
 
     // ========== 滚动动画 ==========
     function initScrollAnimations() {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      }, { threshold: 0.2 });
+      // 翻页模式下由 triggerAnimations 触发
+    }
 
-      document.querySelectorAll('[data-animate]').forEach(el => {
-        observer.observe(el);
+    // 翻页模式：触发某页内所有动画
+    function triggerAnimations(section) {
+      if (!section) return;
+      section.querySelectorAll('[data-animate]').forEach((el, i) => {
+        setTimeout(() => el.classList.add('visible'), i * 150);
       });
+      // 特殊：星空 canvas 启动
+      if (section.classList.contains('sec-stars') && typeof initStarCanvas === 'function') {
+        initStarCanvas();
+      }
     }
 
     // ========== 开场页装饰 ==========
@@ -1170,7 +1210,10 @@
     }
 
     // ========== 星空 canvas ==========
+    let starCanvasInitialized = false;
     function initStarCanvas() {
+      if (starCanvasInitialized) return;
+      starCanvasInitialized = true;
       const canvas = document.getElementById('star-canvas');
       const ctx = canvas.getContext('2d');
       let w, h, stars = [];
@@ -1233,31 +1276,73 @@
     // ========== 自动聚焦密码框 ==========
     pwdInput.focus();
 
-    // ========== 滚动回弹吸附 ==========
-    (function initSnap() {
+    // ========== 翻页控制器 ==========
+    (function initFullpage() {
+      const container = document.getElementById('pageContainer');
+      const dotsContainer = document.getElementById('pageDots');
       const sections = document.querySelectorAll('.section');
-      let scrollTimer = null;
-      let isSnapping = false;
+      const total = sections.length;
+      let current = 0;
+      let isTransitioning = false;
+      let touchStartY = 0;
 
-      window.addEventListener('scroll', () => {
-        if (isSnapping) return;
-        clearTimeout(scrollTimer);
-        scrollTimer = setTimeout(() => {
-          const scrollY = window.scrollY;
-          const winH = window.innerHeight;
-          let closest = null;
-          let minDist = Infinity;
-          sections.forEach(sec => {
-            const dist = Math.abs(sec.offsetTop - scrollY);
-            if (dist < minDist) { minDist = dist; closest = sec; }
-          });
-          if (closest && minDist > 10) {
-            isSnapping = true;
-            closest.scrollIntoView({ behavior: 'smooth' });
-            setTimeout(() => { isSnapping = false; }, 600);
-          }
-        }, 120);
+      // 生成页码点
+      for (let i = 0; i < total; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'page-dot' + (i === 0 ? ' active' : '');
+        dot.addEventListener('click', () => goToPage(i));
+        dotsContainer.appendChild(dot);
+      }
+
+      function updateDots() {
+        dotsContainer.querySelectorAll('.page-dot').forEach((d, i) => {
+          d.classList.toggle('active', i === current);
+        });
+      }
+
+      function goToPage(index) {
+        if (index < 0 || index >= total || isTransitioning) return;
+        if (index === current) return;
+        isTransitioning = true;
+        current = index;
+        container.style.transform = `translateY(-${current * 100}vh)`;
+        updateDots();
+        // 触发当前页动画
+        triggerAnimations(sections[current]);
+        setTimeout(() => { isTransitioning = false; }, 850);
+      }
+
+      // 鼠标滚轮
+      window.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        if (Math.abs(e.deltaY) < 30) return; // 忽略微小滚动
+        if (e.deltaY > 0) goToPage(current + 1);
+        else goToPage(current - 1);
+      }, { passive: false });
+
+      // 触摸滑动
+      window.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
       }, { passive: true });
+      window.addEventListener('touchend', (e) => {
+        const diff = touchStartY - e.changedTouches[0].clientY;
+        if (Math.abs(diff) > 50) {
+          if (diff > 0) goToPage(current + 1);
+          else goToPage(current - 1);
+        }
+      }, { passive: true });
+
+      // 键盘
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); goToPage(current + 1); }
+        if (e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); goToPage(current - 1); }
+      });
+
+      // 显示页码点
+      setTimeout(() => dotsContainer.classList.add('show'), 1000);
+
+      // 初始触发动画
+      triggerAnimations(sections[0]);
     })();
   </script>
 
