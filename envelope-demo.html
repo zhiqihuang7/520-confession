@@ -107,43 +107,59 @@
     .envelope-card.show-text .card-text { opacity: 1; }
     .envelope-card.show-text .card-hint { opacity: 1; }
 
-    /* ========== 翻盖引导光晕 ========== */
-    .flap-glow {
+    /* ========== 翻盖引导光点 + 结构线 ========== */
+    .flap-guide {
       position: absolute;
       top: 0; left: 0; right: 0;
       height: 55%;
       pointer-events: none;
       z-index: 4;
+      transition: opacity 0.4s ease;
     }
-    /* 脉冲光圈 */
-    .flap-glow::before {
-      content: '';
+
+    /* 光点 */
+    .guide-dot {
       position: absolute;
-      top: 50%; left: 50%;
-      width: 40px; height: 40px;
-      transform: translate(-50%, -30%);
+      top: 48%; left: 50%;
+      width: 8px; height: 8px;
+      transform: translate(-50%, -50%);
       border-radius: 50%;
-      background: radial-gradient(circle, #f5c6d044, transparent 70%);
-      animation: glowPulse 2s ease-in-out infinite;
+      background: #f5c6d0;
+      box-shadow:
+        0 0 6px 2px #f5c6d088,
+        0 0 16px 4px #f5c6d044,
+        0 0 30px 8px #f5c6d022;
+      animation: dotPulse 2s ease-in-out infinite;
     }
-    /* 浮动箭头 */
-    .flap-arrow {
+    @keyframes dotPulse {
+      0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(0.8); box-shadow: 0 0 6px 2px #f5c6d088, 0 0 16px 4px #f5c6d044; }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); box-shadow: 0 0 10px 4px #f5c6d0aa, 0 0 24px 8px #f5c6d066, 0 0 40px 12px #f5c6d033; }
+    }
+
+    /* 左上角结构线 */
+    .guide-line {
       position: absolute;
-      top: 52%; left: 50%;
-      transform: translateX(-50%);
-      font-size: 0.9rem;
-      color: #f5c6d088;
-      animation: arrowBounce 1.5s ease-in-out infinite;
-      pointer-events: none;
-      z-index: 5;
+      top: 48%; left: 50%;
+      height: 1px;
+      background: linear-gradient(to right, #f5c6d066, #f5c6d022, transparent);
+      transform-origin: 0 0;
+      animation: lineFade 2s ease-in-out infinite;
     }
-    @keyframes glowPulse {
-      0%, 100% { opacity: 0.3; transform: translate(-50%, -30%) scale(0.8); }
-      50% { opacity: 1; transform: translate(-50%, -30%) scale(1.5); }
+    .guide-line.left {
+      width: 45%;
+      transform: rotate(-42deg);
+      background: linear-gradient(to right, #f5c6d066, #f5c6d022, transparent);
     }
-    @keyframes arrowBounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.5; }
-      50% { transform: translateX(-50%) translateY(-8px); opacity: 1; }
+    .guide-line.right {
+      width: 45%;
+      transform: rotate(42deg);
+      background: linear-gradient(to left, #f5c6d066, #f5c6d022, transparent);
+      transform-origin: 0 0;
+      left: 50%;
+    }
+    @keyframes lineFade {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
     }
 
     /* ========== 点击提示（底部） ========== */
@@ -265,8 +281,10 @@
       <div class="flap-face"></div>
       <div class="flap-back"></div>
     </div>
-    <div class="flap-glow" id="flapGlow">
-      <div class="flap-arrow">↑</div>
+    <div class="flap-guide" id="flapGuide">
+      <div class="guide-line left"></div>
+      <div class="guide-line right"></div>
+      <div class="guide-dot"></div>
     </div>
     <div class="click-hint">✉️ 点击打开</div>
   </div>
@@ -361,7 +379,7 @@
       const cy = rect.top + rect.height / 2;
 
       // Step 1: 隐藏引导 + 翻盖打开 + 星光爆发
-      document.getElementById('flapGlow').style.opacity = '0';
+      document.getElementById('flapGuide').style.opacity = '0';
       flap.classList.add('open');
       setTimeout(() => createSparkleBurst(cx, cy - 30), 300);
 
