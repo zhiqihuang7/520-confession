@@ -171,8 +171,8 @@
     /* 时间锁晃动 */
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
-      10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); }
-      20%, 40%, 60%, 80% { transform: translateX(6px); }
+      15%, 55% { transform: translateX(-3px); }
+      35%, 75% { transform: translateX(3px); }
     }
     /* 点击发光消散 */
     .guide-line.glow-out { animation: lineGlowOut 0.8s ease-out forwards; }
@@ -1094,21 +1094,24 @@
 
         // 时间未到：晃动 + 显示提示
         if (Date.now() < OPEN_TIME && !window.__bypassTimeLock) {
-          // 晃动效果
-          wrap.style.animation = 'shake 0.5s ease';
-          setTimeout(() => { wrap.style.animation = ''; }, 500);
+          // 晃动效果（轻柔一点）
+          wrap.style.animation = 'shake 0.6s ease';
+          setTimeout(() => { wrap.style.animation = ''; }, 700);
           if (timeHint) return;
           timeHint = document.createElement('div');
           timeHint.style.cssText = `
-            position:absolute;bottom:-60px;left:50%;transform:translateX(-50%);
-            font-size:0.8rem;color:#f5c6d0aa;letter-spacing:0.15em;
-            white-space:nowrap;animation:fadeInUp .6s ease;
+            position:absolute;bottom:-80px;left:50%;transform:translateX(-50%);
+            font-size:0.75rem;color:#f5c6d0cc;letter-spacing:0.1em;
+            text-align:center;line-height:1.8;
+            animation:fadeInUp .6s ease;
           `;
           const diff = OPEN_TIME - Date.now();
           const d = Math.floor(diff / 86400000);
           const h = Math.floor((diff % 86400000) / 3600000);
           const m = Math.floor((diff % 3600000) / 60000);
-          timeHint.textContent = d > 0 ? `还有 ${d}天${h}小时，这封信才会到你手中 💌` : `还有 ${h}小时${m}分钟，这封信才会到你手中 💌`;
+          timeHint.innerHTML = d > 0
+            ? `就算你是我的公主大人，也不能直接偷看哦 💕<br>还有 ${d}天${h}小时，这封信才会到你手中 💌`
+            : `就算你是我的公主大人，也不能直接偷看哦 💕<br>还有 ${h}小时${m}分钟，这封信才会到你手中 💌`;
           wrap.appendChild(timeHint);
           setTimeout(() => { timeHint.remove(); timeHint = null; }, 3000);
           return;
