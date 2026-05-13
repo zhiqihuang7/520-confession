@@ -107,7 +107,46 @@
     .envelope-card.show-text .card-text { opacity: 1; }
     .envelope-card.show-text .card-hint { opacity: 1; }
 
-    /* ========== 点击提示 ========== */
+    /* ========== 翻盖引导光晕 ========== */
+    .flap-glow {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 55%;
+      pointer-events: none;
+      z-index: 4;
+    }
+    /* 脉冲光圈 */
+    .flap-glow::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 40px; height: 40px;
+      transform: translate(-50%, -30%);
+      border-radius: 50%;
+      background: radial-gradient(circle, #f5c6d044, transparent 70%);
+      animation: glowPulse 2s ease-in-out infinite;
+    }
+    /* 浮动箭头 */
+    .flap-arrow {
+      position: absolute;
+      top: 52%; left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.9rem;
+      color: #f5c6d088;
+      animation: arrowBounce 1.5s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 5;
+    }
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.3; transform: translate(-50%, -30%) scale(0.8); }
+      50% { opacity: 1; transform: translate(-50%, -30%) scale(1.5); }
+    }
+    @keyframes arrowBounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.5; }
+      50% { transform: translateX(-50%) translateY(-8px); opacity: 1; }
+    }
+
+    /* ========== 点击提示（底部） ========== */
     .click-hint {
       position: absolute;
       bottom: -36px; left: 50%;
@@ -226,6 +265,9 @@
       <div class="flap-face"></div>
       <div class="flap-back"></div>
     </div>
+    <div class="flap-glow" id="flapGlow">
+      <div class="flap-arrow">↑</div>
+    </div>
     <div class="click-hint">✉️ 点击打开</div>
   </div>
 
@@ -318,7 +360,8 @@
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
 
-      // Step 1: 翻盖打开 + 星光爆发
+      // Step 1: 隐藏引导 + 翻盖打开 + 星光爆发
+      document.getElementById('flapGlow').style.opacity = '0';
       flap.classList.add('open');
       setTimeout(() => createSparkleBurst(cx, cy - 30), 300);
 
