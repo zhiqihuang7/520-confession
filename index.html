@@ -724,7 +724,7 @@
         // 点击卡片 → 进入密码页
         card.addEventListener('click', (e) => {
           e.stopPropagation();
-          createSparkleBurst(cx, cy);
+          createSparkleBurst(e.clientX, e.clientY);
           envelope.classList.add('fade-out');
           setTimeout(() => {
             envelope.style.display = 'none';
