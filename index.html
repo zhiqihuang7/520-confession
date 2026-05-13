@@ -1109,11 +1109,36 @@
           const d = Math.floor(diff / 86400000);
           const h = Math.floor((diff % 86400000) / 3600000);
           const m = Math.floor((diff % 3600000) / 60000);
-          timeHint.innerHTML = d > 0
-            ? `就算你是我的公主大人，也不能直接偷看哦 💕<br>还有 ${d}天${h}小时，这封信才会到你手中 💌`
-            : `就算你是我的公主大人，也不能直接偷看哦 💕<br>还有 ${h}小时${m}分钟，这封信才会到你手中 💌`;
+          const lines = [
+            '就算你是我的公主大人，也不能直接偷看哦 💕',
+            d > 0
+              ? `还有 ${d}天${h}小时，这封信才会到你手中 💌`
+              : `还有 ${h}小时${m}分钟，这封信才会到你手中 💌`
+          ];
+          timeHint.textContent = '';
           wrap.appendChild(timeHint);
-          setTimeout(() => { timeHint.remove(); timeHint = null; }, 3000);
+          // 逐字出现效果
+          let curLine = 0, curChar = 0;
+          const typeTimer = setInterval(() => {
+            if (curLine === 0) {
+              if (curChar < lines[0].length) {
+                curChar++;
+                timeHint.innerHTML = lines[0].substring(0, curChar);
+              } else {
+                timeHint.innerHTML = lines[0] + '<br>';
+                curLine = 1;
+                curChar = 0;
+              }
+            } else {
+              if (curChar < lines[1].length) {
+                curChar++;
+                timeHint.innerHTML = lines[0] + '<br>' + lines[1].substring(0, curChar);
+              } else {
+                clearInterval(typeTimer);
+                setTimeout(() => { timeHint.remove(); timeHint = null; }, 2000);
+              }
+            }
+          }, 45);
           return;
         }
 
