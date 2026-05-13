@@ -136,54 +136,20 @@
     .envelope-card.show-text .card-text { opacity: 1; }
     .envelope-card.show-text .card-hint { opacity: 1; }
 
-    /* ========== 信封蜡封（CSS 爱心） ========== */
+    /* ========== 信封蜡封（图片） ========== */
     .envelope-seal {
       position: absolute;
-      bottom: 6%; left: 50%;
+      bottom: 2%; left: 50%;
       transform: translateX(-50%);
-      width: 40px; height: 40px;
+      width: 80px; height: 80px;
       z-index: 2;
       transition: opacity 0.4s ease;
-      display: flex; align-items: center; justify-content: center;
     }
     .envelope-seal.hidden { opacity: 0; }
-
-    /* 蜡封底座 */
-    .seal-base {
-      position: absolute;
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #ff8ab5, #d4466a, #a02040);
-      box-shadow:
-        0 2px 8px #ff6b9d44,
-        inset 0 1px 2px #ffffff44,
-        inset 0 -1px 2px #00000044;
-    }
-
-    /* 蜡封爱心 */
-    .seal-heart {
-      position: relative;
-      width: 16px; height: 14px;
-      z-index: 1;
-    }
-    .seal-heart::before,
-    .seal-heart::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      width: 10px; height: 16px;
-      border-radius: 10px 10px 0 0;
-      background: #fff;
-    }
-    .seal-heart::before {
-      left: 8px;
-      transform: rotate(-45deg);
-      transform-origin: 0 100%;
-    }
-    .seal-heart::after {
-      left: 0;
-      transform: rotate(45deg);
-      transform-origin: 100% 100%;
+    .envelope-seal img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 6px #00000060);
     }
 
     /* ========== 点击提示 ========== */
@@ -273,8 +239,7 @@
       <div class="flap-back"></div>
     </div>
     <div class="envelope-seal" id="seal">
-      <div class="seal-base"></div>
-      <div class="seal-heart"></div>
+      <img src="seal.png" alt="火漆印">
     </div>
     <div class="click-hint">✉️ 点击打开</div>
   </div>
