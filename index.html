@@ -585,6 +585,120 @@
       100% { opacity: 0; transform: translate(-507px, 507px); }
     }
 
+    /* ========== Section 6: 自白倒计时 ========== */
+    .sec-countdown {
+      background: #050508;
+      position: relative;
+    }
+    .countdown-intro {
+      font-size: clamp(0.85rem, 3vw, 1.05rem);
+      color: #f5c6d088;
+      letter-spacing: 0.2em;
+      margin-bottom: 2.5rem;
+      opacity: 0; transform: translateY(20px);
+      transition: all 1.2s ease;
+    }
+    .countdown-intro.visible { opacity: 1; transform: translateY(0); }
+    .countdown {
+      display: flex; gap: clamp(10px, 3.5vw, 24px);
+      justify-content: center; align-items: center;
+      margin-bottom: 2.5rem;
+    }
+    .countdown-block {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 10px;
+    }
+    .flip-card {
+      position: relative;
+      width: clamp(55px, 14vw, 90px);
+      height: clamp(70px, 18vw, 110px);
+    }
+    .flip-card-inner {
+      position: absolute; inset: 0;
+      background: linear-gradient(145deg, #1a1020, #0e0a12);
+      border: 1px solid #f5c6d033;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 30px #f5c6d011, inset 0 1px 0 #f5c6d018, 0 8px 30px #00000060;
+      overflow: hidden;
+    }
+    .flip-card-inner::after {
+      content: ''; position: absolute;
+      left: 5%; right: 5%; top: 50%; height: 1px;
+      background: linear-gradient(to right, transparent, #f5c6d022, transparent);
+    }
+    .flip-card .number {
+      font-size: clamp(1.8rem, 6vw, 3rem);
+      font-weight: 300; color: #f5c6d0;
+      text-shadow: 0 0 20px #f5c6d044, 0 0 40px #f5c6d022;
+      font-variant-numeric: tabular-nums;
+    }
+    .flip-card::before {
+      content: ''; position: absolute; inset: -6px;
+      border-radius: 16px;
+      background: radial-gradient(ellipse, #f5c6d015, transparent 70%);
+      animation: cardGlow 3s ease-in-out infinite;
+      z-index: -1;
+    }
+    @keyframes cardGlow {
+      0%, 100% { opacity: 0.4; transform: scale(0.95); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+    .countdown-label {
+      font-size: clamp(0.55rem, 1.8vw, 0.75rem);
+      color: #f5c6d066;
+      letter-spacing: 0.3em;
+    }
+    .countdown-sep {
+      font-size: clamp(1.2rem, 4vw, 2rem);
+      color: #f5c6d044;
+      animation: sepPulse 1s ease-in-out infinite;
+      margin-bottom: 18px;
+    }
+    @keyframes sepPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.8; }
+    }
+    .countdown-date {
+      font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+      color: #f5c6d055;
+      letter-spacing: 0.15em;
+      opacity: 0; transition: all 1.2s ease 0.5s;
+    }
+    .countdown-date.visible { opacity: 1; }
+
+    /* 解锁后内容 */
+    .reveal-content {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 1s ease;
+      z-index: 10;
+    }
+    .reveal-content.show { opacity: 1; pointer-events: auto; }
+    .reveal-text {
+      max-width: 500px; width: 90%; text-align: center; padding: 30px;
+    }
+    .reveal-text h2 {
+      font-size: clamp(1.5rem, 5vw, 2.2rem);
+      font-weight: 300; color: #ffd700;
+      letter-spacing: 0.3em; margin-bottom: 2rem;
+      text-shadow: 0 0 30px #ffd70044;
+      opacity: 0; transform: translateY(20px);
+    }
+    .reveal-text h2.show { animation: lineReveal 1s ease forwards; }
+    .reveal-text p {
+      font-size: clamp(0.9rem, 2.8vw, 1.05rem);
+      line-height: 2.2; color: #f5c6d0; font-weight: 300;
+    }
+    .rline {
+      display: block;
+      opacity: 0; transform: translateY(15px);
+    }
+    @keyframes lineReveal {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     /* ========== 响应式 ========== */
     @media (max-width: 600px) {
       .message-card { padding: 35px 25px; }
@@ -700,6 +814,45 @@
         <div class="sub">我爱你，萱萱 💕</div>
       </div>
       <div class="ending-date">2026.05.20</div>
+    </section>
+
+    <!-- Section 6: 自白倒计时 -->
+    <section class="section sec-countdown">
+      <div class="countdown-intro" data-animate>还有一份特别的话，想留到明天告诉你</div>
+      <div class="countdown">
+        <div class="countdown-block">
+          <div class="flip-card"><div class="flip-card-inner"><span class="number" id="cd-days">00</span></div></div>
+          <div class="countdown-label">天</div>
+        </div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-block">
+          <div class="flip-card"><div class="flip-card-inner"><span class="number" id="cd-hours">00</span></div></div>
+          <div class="countdown-label">时</div>
+        </div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-block">
+          <div class="flip-card"><div class="flip-card-inner"><span class="number" id="cd-mins">00</span></div></div>
+          <div class="countdown-label">分</div>
+        </div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-block">
+          <div class="flip-card"><div class="flip-card-inner"><span class="number" id="cd-secs">00</span></div></div>
+          <div class="countdown-label">秒</div>
+        </div>
+      </div>
+      <div class="countdown-date" data-animate>📅 2026.05.21 · 00:00</div>
+
+      <!-- 解锁后内容（初始隐藏） -->
+      <div class="reveal-content" id="revealContent">
+        <div class="reveal-text">
+          <h2 id="revealTitle">致 萱</h2>
+          <p id="revealBody">
+            <span class="rline">这是留给你的自白，</span>
+            <span class="rline">每一句话都是认真的。</span>
+            <span class="rline">（具体内容待填充）</span>
+          </p>
+        </div>
+      </div>
     </section>
 
     </div><!-- end page-container -->
@@ -1139,6 +1292,7 @@
       initMeteors();
       initIntroDecorations();
       initCursorEffect();
+      initCountdown();
     }
 
     // ========== 鼠标拖尾特效 ==========
@@ -1150,6 +1304,81 @@
           });
         }
       } catch(e) { console.warn('cursor-effect init failed:', e); }
+    }
+
+    // ========== 自白倒计时 ==========
+    function initCountdown() {
+      const TARGET = new Date('2026-05-21T00:00:00+08:00').getTime();
+      const daysEl = document.getElementById('cd-days');
+      const hoursEl = document.getElementById('cd-hours');
+      const minsEl = document.getElementById('cd-mins');
+      const secsEl = document.getElementById('cd-secs');
+      let unlocked = false;
+
+      function update() {
+        const diff = TARGET - Date.now();
+        if (diff <= 0) { unlockReveal(); return; }
+        const d = Math.floor(diff / 86400000);
+        const h = Math.floor((diff % 86400000) / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        daysEl.textContent = String(d).padStart(2, '0');
+        hoursEl.textContent = String(h).padStart(2, '0');
+        minsEl.textContent = String(m).padStart(2, '0');
+        secsEl.textContent = String(s).padStart(2, '0');
+      }
+
+      setInterval(update, 1000);
+      update();
+
+      function unlockReveal() {
+        if (unlocked) return;
+        unlocked = true;
+        // 隐藏倒计时区域
+        const countdownEls = document.querySelectorAll('.countdown, .countdown-intro, .countdown-date');
+        countdownEls.forEach(el => { el.style.opacity = '0'; el.style.transition = 'opacity 1s ease'; });
+
+        // 金色光芒
+        setTimeout(() => {
+          const section = document.querySelector('.sec-countdown');
+          for (let i = 0; i < 20; i++) {
+            const ray = document.createElement('div');
+            ray.style.cssText = `
+              position:absolute;top:50%;left:50%;
+              width:2px;height:0;
+              background:linear-gradient(to top,transparent,#ffd700aa,transparent);
+              transform-origin:bottom center;
+              transform:translate(-50%,-100%) rotate(${(360/20)*i}deg);
+              animation:rayShoot 1.5s ease-out forwards;
+              animation-delay:${Math.random()*0.3}s;
+              pointer-events:none;z-index:5;
+            `;
+            section.appendChild(ray);
+          }
+          // 添加 rayShoot 动画
+          if (!document.getElementById('rayShootStyle')) {
+            const style = document.createElement('style');
+            style.id = 'rayShootStyle';
+            style.textContent = '@keyframes rayShoot{0%{height:0;opacity:0}20%{opacity:1}100%{height:50vh;opacity:0}}';
+            document.head.appendChild(style);
+          }
+        }, 800);
+
+        // 显示自白
+        setTimeout(() => {
+          const reveal = document.getElementById('revealContent');
+          reveal.classList.add('show');
+          setTimeout(() => document.getElementById('revealTitle').classList.add('show'), 500);
+          const lines = document.querySelectorAll('.rline');
+          lines.forEach((line, i) => {
+            setTimeout(() => {
+              line.style.opacity = '1';
+              line.style.transform = 'translateY(0)';
+              line.style.transition = 'all 0.8s ease';
+            }, 1200 + i * 600);
+          });
+        }, 2500);
+      }
     }
 
     // ========== 滚动动画 ==========
