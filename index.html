@@ -888,22 +888,22 @@
       // 落花效果
       function createPetals() {
         const colors = ['#ffb6c1', '#ff6b9d99', '#f5c6d088', '#ffc0cb', '#ff9de866'];
-        for (let i = 0; i < 15; i++) {
+        for (let i = 0; i < 30; i++) {
           const petal = document.createElement('div');
           petal.className = 'petal';
           const size = 8 + Math.random() * 12;
-          const duration = 8 + Math.random() * 12;
-          const delay = Math.random() * 15;
+          const duration = 12 + Math.random() * 18;
+          const delay = Math.random() * 20;
           const startX = Math.random() * 100;
-          const drift = -40 + Math.random() * 80;
+          const startY = -(Math.random() * 50); // 从屏幕上半部分出现（0% 到 -50%）
           const color = colors[Math.floor(Math.random() * colors.length)];
           petal.style.cssText = `
             left: ${startX}%;
+            top: ${startY}%;
             width: ${size}px; height: ${size * 0.7}px;
             animation-duration: ${duration}s;
             animation-delay: ${delay}s;
           `;
-          // 用 CSS 形状代替 emoji
           const shape = document.createElement('div');
           shape.className = 'petal-shape';
           shape.style.background = `radial-gradient(ellipse at 30% 30%, ${color}, ${color}66)`;
@@ -912,6 +912,54 @@
         }
       }
       createPetals();
+
+      // 信封页点击特效（星光+花瓣混合）
+      envelope.addEventListener('click', (e) => {
+        if (e.target.closest('.envelope-wrap')) return; // 点击信封本身不触发
+        try {
+          const box = document.createElement('div');
+          box.style.cssText = `position:fixed;left:${e.clientX}px;top:${e.clientY}px;pointer-events:none;z-index:1999;`;
+          document.body.appendChild(box);
+          // 小花瓣散射
+          const pcolors = ['#ffb6c1', '#ff6b9d', '#f5c6d0', '#ffc0cb'];
+          for (let i = 0; i < 8; i++) {
+            const p = document.createElement('div');
+            const a = (Math.PI * 2 * i) / 8 + (Math.random() - .5) * .5;
+            const d = 30 + Math.random() * 50;
+            const sz = 5 + Math.random() * 6;
+            const c = pcolors[Math.floor(Math.random() * pcolors.length)];
+            p.style.cssText = `
+              position:absolute;width:${sz}px;height:${sz*0.7}px;
+              background:radial-gradient(ellipse at 30% 30%,${c},${c}66);
+              border-radius:50% 0 50% 0;transform:rotate(${Math.random()*360}deg);
+              animation:envClickFly .8s ease-out forwards;
+              --sx:${Math.cos(a)*d}px;--sy:${Math.sin(a)*d}px;
+            `;
+            box.appendChild(p);
+          }
+          // 光点
+          for (let i = 0; i < 6; i++) {
+            const s = document.createElement('div');
+            const a = (Math.PI * 2 * i) / 6;
+            const d = 40 + Math.random() * 30;
+            s.style.cssText = `
+              position:absolute;width:3px;height:3px;border-radius:50%;
+              background:#f5c6d0;box-shadow:0 0 6px #f5c6d088;
+              animation:envClickFly .7s ease-out forwards;
+              --sx:${Math.cos(a)*d}px;--sy:${Math.sin(a)*d}px;
+            `;
+            box.appendChild(s);
+          }
+          setTimeout(() => box.remove(), 900);
+        } catch(e) {}
+      });
+      // 注入动画
+      if (!document.getElementById('envClickStyle')) {
+        const st = document.createElement('style');
+        st.id = 'envClickStyle';
+        st.textContent = `@keyframes envClickFly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--sx),var(--sy)) scale(.3);opacity:0}}`;
+        document.head.appendChild(st);
+      }
 
       // 信封周围漂浮粒子
       const pc = document.getElementById('envParticles');
