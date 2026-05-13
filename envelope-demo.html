@@ -145,17 +145,35 @@
     }
     .guide-line.left {
       width: 35%;
-      transform: rotate(-140deg);
+      transform: rotate(-42deg);
       background: linear-gradient(to right, #f5c6d055, #f5c6d018, transparent);
     }
     .guide-line.right {
       width: 35%;
-      transform: rotate(140deg);
+      transform: rotate(42deg);
       background: linear-gradient(to right, #f5c6d055, #f5c6d018, transparent);
     }
     @keyframes lineFade {
       0%, 100% { opacity: 0.3; }
       50% { opacity: 0.8; }
+    }
+
+    /* 点击后线条发光消散 */
+    .guide-line.glow-out {
+      animation: lineGlowOut 0.8s ease-out forwards;
+    }
+    @keyframes lineGlowOut {
+      0% { opacity: 1; filter: brightness(1); box-shadow: 0 0 4px #f5c6d088; }
+      40% { opacity: 1; filter: brightness(2.5); box-shadow: 0 0 12px #f5c6d0aa; }
+      100% { opacity: 0; filter: brightness(1); box-shadow: none; }
+    }
+    .guide-dot.glow-out {
+      animation: dotGlowOut 0.8s ease-out forwards;
+    }
+    @keyframes dotGlowOut {
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 4px 1px #f5c6d088, 0 0 10px 3px #f5c6d044; }
+      30% { opacity: 1; transform: translate(-50%, -50%) scale(2); box-shadow: 0 0 16px 6px #f5c6d0cc, 0 0 30px 10px #f5c6d088; }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); box-shadow: none; }
     }
 
     /* ========== 点击提示（底部） ========== */
@@ -374,8 +392,9 @@
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
 
-      // Step 1: 隐藏引导 + 翻盖打开 + 星光爆发
-      document.getElementById('flapGuide').style.opacity = '0';
+      // Step 1: 引导发光消散 + 翻盖打开 + 星光爆发
+      const guide = document.getElementById('flapGuide');
+      guide.querySelectorAll('.guide-line, .guide-dot').forEach(el => el.classList.add('glow-out'));
       flap.classList.add('open');
       setTimeout(() => createSparkleBurst(cx, cy - 30), 300);
 
