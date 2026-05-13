@@ -1120,6 +1120,7 @@
           e.stopPropagation();
           createSparkleBurst(e.clientX, e.clientY);
           envelope.classList.add('fade-out');
+          document.getElementById('adminPreview').classList.remove('show');
           setTimeout(() => {
             envelope.style.display = 'none';
             gate.style.display = 'flex';
@@ -1199,6 +1200,7 @@
       if (e.key === 'Enter') {
         if (pwdInput.value === PASSWORD) {
           gate.classList.add('hidden');
+          document.getElementById('adminPreview').classList.remove('show');
           setTimeout(() => {
             gate.style.display = 'none';
             main.classList.add('show');
@@ -1487,7 +1489,7 @@
 
     // ========== 自白倒计时 ==========
     function initCountdown() {
-      const TARGET = new Date('2026-05-21T00:00:00+08:00').getTime();
+      const TARGET = new Date('2026-05-20T00:00:00+08:00').getTime();
       const daysEl = document.getElementById('cd-days');
       const hoursEl = document.getElementById('cd-hours');
       const minsEl = document.getElementById('cd-mins');
@@ -1939,6 +1941,7 @@
               if (wrap) { wrap.click(); }
               setTimeout(() => {
                 if (envEl) { envEl.classList.add('fade-out'); }
+                document.getElementById('adminPreview').classList.remove('show');
                 setTimeout(() => {
                   if (envEl) { envEl.style.display = 'none'; }
                   closeGateAndShowMain();
