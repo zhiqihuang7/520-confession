@@ -1826,13 +1826,8 @@
           if (idx === 0) sparkleBurst(e.clientX, e.clientY);
           else if (idx === 1) ringBurst(e.clientX, e.clientY);
           else if (idx === 2) meteorTrail(e.clientX, e.clientY);
-          else if ((idx === 3 || idx === 4) && typeof confetti !== 'undefined') {
-            confetti({
-              particleCount: 6, spread: 60, startVelocity: 25,
-              gravity: 0.8, ticks: 80,
-              origin: { x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight },
-              colors: ['#ff6b9d', '#f5c6d0', '#ff1493', '#ffb6c1', '#ffd700']
-            });
+          else if (idx === 3 || idx === 4) {
+            sparkleBurst(e.clientX, e.clientY);
           }
         } catch(e) { console.warn('click fx error:', e); }
       });
