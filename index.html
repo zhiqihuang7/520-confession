@@ -265,7 +265,7 @@
     /* 密码页极光背景 */
     .gate-aurora {
       position: absolute; pointer-events: none;
-      border-radius: 50%; filter: blur(80px);
+      border-radius: 50%; filter: blur(50px);
       animation: gateAurora ease-in-out infinite;
     }
     @keyframes gateAurora {
@@ -601,7 +601,7 @@
     /* ========== 呼吸星光（背景云层） ========== */
     .nebula {
       position: fixed; pointer-events: none; z-index: 0;
-      border-radius: 50%; filter: blur(60px);
+      border-radius: 50%; filter: blur(40px);
       animation: nebulaPulse ease-in-out infinite;
     }
     @keyframes nebulaPulse {
@@ -1392,12 +1392,16 @@
         petals.push(p);
       }
 
+      // 降频到约24fps（花瓣慢速飘落不需要60fps）
+      let frameSkip = 0;
       function animate() {
+        frameSkip++;
+        if (frameSkip % 2 === 0) { requestAnimationFrame(animate); return; }
         ctx.clearRect(0, 0, w, h);
         petals.forEach(p => { p.update(); p.draw(); });
         requestAnimationFrame(animate);
       }
-      animate();
+      setTimeout(() => animate(), 300); // 延迟启动，减少首屏压力
     }
 
     // ========== 鼠标光晕（GPU合成加速） ==========
@@ -1904,7 +1908,7 @@
           grad.addColorStop(1, 'rgba(245,198,208,0)');
           ctx.beginPath();
           ctx.moveTo(m.x, m.y);
-          ctx.lineTo(m.x - m.len, m.y + m.len);
+          ctx.lineTo(m.x + m.len, m.y - m.len);
           ctx.strokeStyle = grad;
           ctx.lineWidth = m.w;
           ctx.stroke();
