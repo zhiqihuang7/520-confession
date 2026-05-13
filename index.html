@@ -95,6 +95,20 @@
       letter-spacing: 0.1em; opacity: 0;
       transition: opacity 0.6s ease 1.2s;
     }
+    /* 第二次点击引导光点（小） */
+    .card-dot {
+      position: absolute;
+      bottom: 25%; left: 50%;
+      width: 4px; height: 4px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%; background: #f5c6d0;
+      box-shadow: 0 0 3px 1px #f5c6d088, 0 0 8px 2px #f5c6d044;
+      animation: dotPulse 2s ease-in-out infinite;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    .card-dot.show { opacity: 1; }
     .envelope-card.show-text .card-text { opacity: 1; }
     .envelope-card.show-text .card-hint { opacity: 1; }
 
@@ -105,7 +119,7 @@
       transition: opacity 0.4s ease;
     }
     .guide-dot {
-      position: absolute; top: 58%; left: 50%;
+      position: absolute; top: 65%; left: 50%;
       width: 5px; height: 5px;
       transform: translate(-50%, -50%);
       border-radius: 50%; background: #f5c6d0;
@@ -117,16 +131,16 @@
       50% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
     }
     .guide-line {
-      position: absolute; top: 58%; left: 50%;
+      position: absolute; top: 65%; left: 50%;
       height: 1px; transform-origin: 0 0;
       animation: lineFade 2s ease-in-out infinite;
     }
     .guide-line.left {
-      width: 42%; transform: rotate(-35deg);
+      width: 48%; transform: rotate(-35deg);
       background: linear-gradient(to right, #f5c6d055, #f5c6d018, transparent);
     }
     .guide-line.right {
-      width: 42%; transform: rotate(-145deg);
+      width: 48%; transform: rotate(-145deg);
       background: linear-gradient(to right, #f5c6d055, #f5c6d018, transparent);
     }
     @keyframes lineFade {
@@ -540,6 +554,7 @@
       <div class="envelope-card" id="card">
         <div class="card-text">这封信，只给你</div>
         <div class="card-hint">点击继续</div>
+        <div class="card-dot" id="cardDot"></div>
       </div>
       <div class="envelope-flap" id="flap">
         <div class="flap-face"></div>
@@ -702,6 +717,8 @@
         setTimeout(() => {
           card.classList.add('show-text');
           createSparkleBurst(cx, cy - 60);
+          // 第二次引导光点
+          setTimeout(() => document.getElementById('cardDot').classList.add('show'), 600);
         }, 1000);
 
         // 点击卡片 → 进入密码页
