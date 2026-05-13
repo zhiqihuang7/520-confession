@@ -1444,164 +1444,111 @@
       }, 400);
     }
 
-    // ========== 点击冒爱心（canvas-confetti） ==========
     // ========== 各页面点击特效 ==========
     function initClickHearts() {
-      // 获取当前所在 section 索引
       function getCurrentSection() {
-        const container = document.getElementById('pageContainer');
-        if (!container) return 0;
-        const transform = container.style.transform;
-        const match = transform.match(/translateY\((-?\d+)vh\)/);
-        if (!match) return 0;
-        return Math.round(Math.abs(parseInt(match[1])) / 100);
-      }
-
-      // 特效1：星光粒子爆发（第1页）
-      function sparkleBurst(x, y) {
-        const container = document.createElement('div');
-        container.style.cssText = `position:fixed;left:${x}px;top:${y}px;pointer-events:none;z-index:999;`;
-        document.body.appendChild(container);
-        const colors = ['#f5c6d0', '#ff6b9d', '#ffd700', '#fff', '#ffb6c1'];
-        for (let i = 0; i < 20; i++) {
-          const p = document.createElement('div');
-          const angle = (Math.PI * 2 * i) / 20 + (Math.random() - 0.5) * 0.5;
-          const dist = 40 + Math.random() * 80;
-          const size = 2 + Math.random() * 3;
-          const c = colors[Math.floor(Math.random() * colors.length)];
-          p.style.cssText = `
-            position:absolute;width:${size}px;height:${size}px;border-radius:50%;
-            background:${c};box-shadow:0 0 ${size*3}px ${c};
-            animation:sfly 0.7s ease-out forwards;
-            --sx:${Math.cos(angle)*dist}px;--sy:${Math.sin(angle)*dist}px;
-          `;
-          container.appendChild(p);
-        }
-        setTimeout(() => container.remove(), 800);
-      }
-
-      // 特效2：光圈扩散 + 光点散射（第2页）
-      function heartRing(x, y) {
-        const container = document.createElement('div');
-        container.style.cssText = `position:fixed;left:${x}px;top:${y}px;pointer-events:none;z-index:999;`;
-        document.body.appendChild(container);
-        // 光圈
-        const ring = document.createElement('div');
-        ring.style.cssText = `
-          position:absolute;left:-4px;top:-4px;
-          width:8px;height:8px;border-radius:50%;
-          border:2px solid #f5c6d0;
-          animation:ringExpand 0.8s ease-out forwards;
-        `;
-        container.appendChild(ring);
-        // 光点散射
-        const colors = ['#f5c6d0', '#ff6b9d', '#ffd700'];
-        for (let i = 0; i < 12; i++) {
-          const p = document.createElement('div');
-          const angle = (Math.PI * 2 * i) / 12;
-          const dist = 50 + Math.random() * 40;
-          const size = 3 + Math.random() * 3;
-          const c = colors[Math.floor(Math.random() * colors.length)];
-          p.style.cssText = `
-            position:absolute;width:${size}px;height:${size}px;border-radius:50%;
-            background:${c};box-shadow:0 0 ${size*2}px ${c}88;
-            animation:hfly 0.8s ease-out forwards;
-            --sx:${Math.cos(angle)*dist}px;--sy:${Math.sin(angle)*dist}px;
-          `;
-          container.appendChild(p);
-        }
-        setTimeout(() => container.remove(), 900);
-      }
-
-      // 特效3：流星拖尾（第3页）— 固定左下方向
-      function meteorTrail(x, y) {
-        const container = document.createElement('div');
-        container.style.cssText = `position:fixed;left:${x}px;top:${y}px;pointer-events:none;z-index:999;`;
-        document.body.appendChild(container);
-        // 固定方向：左下 45°
-        const baseAngle = Math.PI * 0.75; // 135° = 左下
-        for (let i = 0; i < 6; i++) {
-          const angle = baseAngle + (Math.random() - 0.5) * 0.3;
-          const dist = 100 + Math.random() * 80;
-          const sx = Math.cos(angle) * dist;
-          const sy = -Math.sin(angle) * dist;
-          const m = document.createElement('div');
-          m.style.cssText = `
-            position:absolute;width:2px;height:2px;border-radius:50%;
-            background:#fff;box-shadow:0 0 4px 2px #fff,0 0 8px 4px #f5c6d0;
-            animation:mfly 0.8s ease-out forwards;
-            --sx:${sx}px;--sy:${sy}px;
-          `;
-          const tail = document.createElement('div');
-          tail.style.cssText = `
-            position:absolute;top:0;left:0;width:70px;height:1px;
-            background:linear-gradient(to right,#fff0,#f5c6d0,#fff0);
-            transform:rotate(${-angle*180/Math.PI + 180}deg);transform-origin:0 0;
-            animation:mfly 0.8s ease-out forwards;--sx:${sx}px;--sy:${sy}px;
-          `;
-          container.appendChild(m);
-          container.appendChild(tail);
-        }
-        setTimeout(() => container.remove(), 900);
+        const c = document.getElementById('pageContainer');
+        if (!c || !c.style.transform) return 0;
+        const m = c.style.transform.match(/translateY\((-?\d+)/);
+        return m ? Math.round(Math.abs(parseInt(m[1])) / 100) : 0;
       }
 
       // 注入动画样式
       if (!document.getElementById('clickFxStyles')) {
-        const style = document.createElement('style');
-        style.id = 'clickFxStyles';
-        style.textContent = `
-          @keyframes sfly { 0%{transform:translate(0,0) scale(1);opacity:1} 100%{transform:translate(var(--sx),var(--sy)) scale(0);opacity:0} }
-          @keyframes hfly { 0%{transform:translate(0,0) scale(0);opacity:1} 40%{transform:translate(calc(var(--sx)*0.4),calc(var(--sy)*0.4)) scale(1.3);opacity:1} 100%{transform:translate(var(--sx),var(--sy)) scale(0.6);opacity:0} }
-          @keyframes mfly { 0%{transform:translate(0,0) scale(1);opacity:1} 100%{transform:translate(var(--sx),var(--sy)) scale(0.3);opacity:0} }
-          @keyframes ringExpand { 0%{width:8px;height:8px;left:-4px;top:-4px;opacity:1;border-width:2px} 100%{width:120px;height:120px;left:-60px;top:-60px;opacity:0;border-width:1px} }
+        const s = document.createElement('style');
+        s.id = 'clickFxStyles';
+        s.textContent = `
+          @keyframes sfly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--sx),var(--sy)) scale(0);opacity:0}}
+          @keyframes hfly{0%{transform:translate(0,0) scale(0);opacity:1}40%{transform:translate(calc(var(--sx)*.4),calc(var(--sy)*.4)) scale(1.3);opacity:1}100%{transform:translate(var(--sx),var(--sy)) scale(.6);opacity:0}}
+          @keyframes mfly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--sx),var(--sy)) scale(.3);opacity:0}}
+          @keyframes ringExp{0%{width:8px;height:8px;margin-left:-4px;margin-top:-4px;opacity:1}100%{width:120px;height:120px;margin-left:-60px;margin-top:-60px;opacity:0}}
         `;
-        document.head.appendChild(style);
+        document.head.appendChild(s);
       }
 
-      document.addEventListener('click', (e) => {
-        if (!main.classList.contains('show')) return;
-        const idx = getCurrentSection();
-        switch(idx) {
-          case 0: sparkleBurst(e.clientX, e.clientY); break;
-          case 1: heartRing(e.clientX, e.clientY); break;
-          case 2: meteorTrail(e.clientX, e.clientY); break;
-          default: break; // 4/5页用 confetti
-        }
-      });
-
-      // confetti（第4/5页）
-      function setupConfetti() {
-        if (typeof confetti === 'undefined') return;
+      // 特效1：星光粒子
+      function sparkleBurst(x, y) {
         try {
-          const heartShape = confetti.shapeFromPath({
-            path: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
-            matrix: [0.04, 0, 0, 0.04, -0.5, -0.5]
-          });
-          document.addEventListener('click', (e) => {
-            if (!main.classList.contains('show')) return;
-            const idx = getCurrentSection();
-            if (idx === 3 || idx === 4) {
-              try {
-                confetti({
-                  particleCount: 6, spread: 60, startVelocity: 25,
-                  gravity: 0.8, ticks: 80,
-                  origin: { x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight },
-                  shapes: [heartShape],
-                  colors: ['#ff6b9d', '#f5c6d0', '#ff1493', '#ffb6c1', '#ffd700'],
-                  scalar: 0.8 + Math.random() * 0.5
-                });
-              } catch(e) { console.warn('confetti fire failed:', e); }
+          const box = document.createElement('div');
+          box.style.cssText = `position:fixed;left:${x}px;top:${y}px;pointer-events:none;z-index:999;`;
+          document.body.appendChild(box);
+          ['#f5c6d0','#ff6b9d','#ffd700','#fff','#ffb6c1'].forEach((c, i) => {
+            for (let j = 0; j < 4; j++) {
+              const p = document.createElement('div');
+              const a = (Math.PI*2*(i*4+j))/20 + (Math.random()-.5)*.5;
+              const d = 40 + Math.random()*80;
+              const sz = 2 + Math.random()*3;
+              p.style.cssText = `position:absolute;width:${sz}px;height:${sz}px;border-radius:50%;background:${c};box-shadow:0 0 ${sz*3}px ${c};animation:sfly .7s ease-out forwards;--sx:${Math.cos(a)*d}px;--sy:${Math.sin(a)*d}px;`;
+              box.appendChild(p);
             }
           });
-        } catch(e) { console.warn('confetti init failed:', e); }
+          setTimeout(() => box.remove(), 800);
+        } catch(e) {}
       }
-      if (typeof confetti !== 'undefined') { setupConfetti(); }
-      else {
-        const check = setInterval(() => {
-          if (typeof confetti !== 'undefined') { clearInterval(check); setupConfetti(); }
-        }, 200);
-        setTimeout(() => clearInterval(check), 5000);
+
+      // 特效2：光圈+光点
+      function ringBurst(x, y) {
+        try {
+          const box = document.createElement('div');
+          box.style.cssText = `position:fixed;left:${x}px;top:${y}px;pointer-events:none;z-index:999;`;
+          document.body.appendChild(box);
+          const ring = document.createElement('div');
+          ring.style.cssText = `position:absolute;border:2px solid #f5c6d0;border-radius:50%;width:8px;height:8px;margin-left:-4px;margin-top:-4px;animation:ringExp .8s ease-out forwards;`;
+          box.appendChild(ring);
+          ['#f5c6d0','#ff6b9d','#ffd700'].forEach(c => {
+            for (let j = 0; j < 4; j++) {
+              const p = document.createElement('div');
+              const a = (Math.PI*2*(({0:0,1:1,2:2}[c]||0)*4+j))/12;
+              const d = 50+Math.random()*40;
+              const sz = 3+Math.random()*3;
+              p.style.cssText = `position:absolute;width:${sz}px;height:${sz}px;border-radius:50%;background:${c};box-shadow:0 0 ${sz*2}px ${c}88;animation:hfly .8s ease-out forwards;--sx:${Math.cos(a)*d}px;--sy:${Math.sin(a)*d}px;`;
+              box.appendChild(p);
+            }
+          });
+          setTimeout(() => box.remove(), 900);
+        } catch(e) {}
       }
+
+      // 特效3：流星左下
+      function meteorTrail(x, y) {
+        try {
+          const box = document.createElement('div');
+          box.style.cssText = `position:fixed;left:${x}px;top:${y}px;pointer-events:none;z-index:999;`;
+          document.body.appendChild(box);
+          for (let i = 0; i < 6; i++) {
+            const a = Math.PI*0.75 + (Math.random()-.5)*.3;
+            const d = 100+Math.random()*80;
+            const sx = Math.cos(a)*d;
+            const sy = -Math.sin(a)*d;
+            const m = document.createElement('div');
+            m.style.cssText = `position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;box-shadow:0 0 4px 2px #fff,0 0 8px 4px #f5c6d0;animation:mfly .8s ease-out forwards;--sx:${sx}px;--sy:${sy}px;`;
+            box.appendChild(m);
+            const t = document.createElement('div');
+            t.style.cssText = `position:absolute;top:0;left:0;width:70px;height:1px;background:linear-gradient(to right,#fff0,#f5c6d0,#fff0);transform:rotate(${-a*180/Math.PI+180}deg);transform-origin:0 0;animation:mfly .8s ease-out forwards;--sx:${sx}px;--sy:${sy}px;`;
+            box.appendChild(t);
+          }
+          setTimeout(() => box.remove(), 900);
+        } catch(e) {}
+      }
+
+      // 统一 click handler
+      document.addEventListener('click', (e) => {
+        try {
+          if (!main || !main.classList.contains('show')) return;
+          const idx = getCurrentSection();
+          if (idx === 0) sparkleBurst(e.clientX, e.clientY);
+          else if (idx === 1) ringBurst(e.clientX, e.clientY);
+          else if (idx === 2) meteorTrail(e.clientX, e.clientY);
+          else if ((idx === 3 || idx === 4) && typeof confetti !== 'undefined') {
+            confetti({
+              particleCount: 6, spread: 60, startVelocity: 25,
+              gravity: 0.8, ticks: 80,
+              origin: { x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight },
+              colors: ['#ff6b9d', '#f5c6d0', '#ff1493', '#ffb6c1', '#ffd700']
+            });
+          }
+        } catch(e) { console.warn('click fx error:', e); }
+      });
     }
 
     // ========== 星空 canvas ==========
