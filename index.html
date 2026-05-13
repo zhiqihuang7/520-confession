@@ -1908,6 +1908,21 @@
       // 立即显示（在第一页就能看到）
       setTimeout(() => entryBox.classList.add('show'), 500);
 
+      // 统一关密码页 + 进主站（兼容企业微信的 X5 内核，不用 KeyboardEvent）
+      function closeGateAndShowMain() {
+        const gEl = document.getElementById('gate');
+        const mEl = document.getElementById('main');
+        if (!gEl || gEl.classList.contains('hidden')) return;
+        gEl.classList.add('hidden');
+        setTimeout(() => {
+          gEl.style.display = 'none';
+          if (mEl) {
+            mEl.classList.add('show');
+            if (typeof initMain === 'function') initMain();
+          }
+        }, 800);
+      }
+
       entryPwd.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           if (entryPwd.value === ENTRY_PWD) {
@@ -1915,49 +1930,23 @@
             window.__bypassTimeLock = true; // 解锁时间锁
 
             const envEl = document.getElementById('envelope');
-            const gEl = document.getElementById('gate');
-            const mEl = document.getElementById('main');
-
-            // 自动走完全流程：开信封 → 关密码页 → 进主站 → 翻到最后
-            function openEnvelopeSequence() {
-              // 先尝试点击信封触发正常动画（仅当还未打开时）
-              const wrap = document.querySelector('.envelope-wrap');
-              const card = document.querySelector('.envelope-card');
-              if (wrap && card && !card.classList.contains('rise')) {
-                wrap.click();
-              }
-              // 无论如何，延时关闭信封和密码页
-              setTimeout(() => {
-                if (envEl) { envEl.classList.add('fade-out'); }
-                setTimeout(() => {
-                  if (envEl) { envEl.style.display = 'none'; }
-                  if (gEl) { gEl.style.display = 'flex'; }
-                  // 自动填入密码页的密码并触发验证
-                  setTimeout(() => {
-                    const pi = document.getElementById('pwd');
-                    if (pi && gEl && !gEl.classList.contains('hidden')) {
-                      pi.value = ENTRY_PWD;
-                      pi.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-                    }
-                  }, 300);
-                }, 800);
-              }, 1500);
-            }
 
             // 判断信封是否已打开
             const cardEl = document.querySelector('.envelope-card');
             if (cardEl && !cardEl.classList.contains('rise')) {
-              // 信封未开，走完整流程
-              openEnvelopeSequence();
+              // 信封未开：点击信封触发动画，再关密码页
+              const wrap = document.querySelector('.envelope-wrap');
+              if (wrap) { wrap.click(); }
+              setTimeout(() => {
+                if (envEl) { envEl.classList.add('fade-out'); }
+                setTimeout(() => {
+                  if (envEl) { envEl.style.display = 'none'; }
+                  closeGateAndShowMain();
+                }, 800);
+              }, 1500);
             } else {
-              // 信封已开，直接关密码页
-              if (gEl && !gEl.classList.contains('hidden')) {
-                const pi = document.getElementById('pwd');
-                if (pi) {
-                  pi.value = ENTRY_PWD;
-                  pi.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-                }
-              }
+              // 信封已开：直接关密码页
+              closeGateAndShowMain();
             }
 
             // 导航到最后一页 + 解锁隐藏内容
@@ -1967,12 +1956,10 @@
               }
               const rc = document.getElementById('revealContent');
               if (rc && !rc.classList.contains('show')) {
-                // 隐藏倒计时
                 document.querySelectorAll('.countdown, .countdown-intro, .countdown-date').forEach(el => {
                   el.style.opacity = '0';
                   el.style.transition = 'opacity 1s ease';
                 });
-                // 金色光芒射线
                 const sec = document.querySelector('.sec-countdown');
                 if (sec) {
                   for (let i = 0; i < 20; i++) {
