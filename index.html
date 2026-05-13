@@ -737,33 +737,42 @@
     ::-webkit-scrollbar-track { background: #0a0a0a; }
     ::-webkit-scrollbar-thumb { background: #f5c6d044; border-radius: 2px; }
 
-    /* ========== 管理员预览框（右下角小密码） ========== */
+    /* ========== 快捷密码入口（右下角，始终可见） ========== */
     .admin-preview {
-      position: fixed; bottom: 20px; right: 20px;
+      position: fixed; bottom: 30px; right: 20px;
       z-index: 9999; opacity: 0;
-      transition: opacity 0.5s ease;
+      transition: opacity 0.8s ease;
       pointer-events: none;
     }
     .admin-preview.show {
       opacity: 1;
       pointer-events: auto;
     }
+    .admin-preview .entry-hint {
+      text-align: center;
+      font-size: 0.6rem;
+      color: #f5c6d044;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+    }
     .admin-preview input {
-      width: 80px; padding: 6px 12px;
-      background: rgba(10,10,10,0.6);
-      border: 1px solid #f5c6d033;
+      width: 90px; padding: 7px 14px;
+      background: rgba(10,10,10,0.5);
+      border: 1px solid #f5c6d044;
       border-radius: 20px;
       color: #f5c6d0;
-      font-size: 0.7rem; text-align: center;
+      font-size: 0.75rem; text-align: center;
       outline: none; letter-spacing: 0.2em;
-      backdrop-filter: blur(4px);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
       transition: all 0.3s ease;
     }
     .admin-preview input:focus {
-      border-color: #f5c6d066;
-      box-shadow: 0 0 10px #f5c6d022;
+      border-color: #f5c6d088;
+      box-shadow: 0 0 15px #f5c6d033;
     }
-    .admin-preview input::placeholder { color: #f5c6d033; }
+    .admin-preview input::placeholder { color: #f5c6d044; }
+    .admin-preview input:focus::placeholder { color: transparent; }
   </style>
 </head>
 <body>
@@ -799,8 +808,9 @@
     <p class="gate-hint">💡 农历月份 + 日期，一共四位哦</p>
   </div>
 
-  <!-- ========== 管理员预览框（右下角，给 Joey 提前看隐藏内容） ========== -->
+  <!-- ========== 快捷密码入口（右下角，输入密码 0919 解锁全部内容） ========== -->
   <div class="admin-preview" id="adminPreview">
+    <div class="entry-hint">✦ 输入密码 ✦</div>
     <input type="password" id="adminPwd" placeholder="🔑" maxlength="8" autocomplete="off">
   </div>
 
@@ -1889,76 +1899,117 @@
       window.goToPage = goToPage;
     })();
 
-    // ========== 管理员预览：右下角小框，输入密码可提前解锁隐藏内容 ==========
-    (function initAdminPreview() {
-      const adminPreview = document.getElementById('adminPreview');
-      const adminPwd = document.getElementById('adminPwd');
-      const ADMIN_PWD = '0919';
+    // ========== 快捷密码入口：右下角小框，输入密码一路解锁全部内容 ==========
+    (function initQuickEntry() {
+      const entryBox = document.getElementById('adminPreview');
+      const entryPwd = document.getElementById('adminPwd');
+      const ENTRY_PWD = '0919';
 
-      // 主页面显示后，显示管理员预览框
-      const mainEl = document.getElementById('main');
-      const observer = new MutationObserver(() => {
-        if (mainEl.classList.contains('show')) {
-          adminPreview.classList.add('show');
-          observer.disconnect();
-        }
-      });
-      observer.observe(mainEl, { attributes: true, attributeFilter: ['class'] });
+      // 立即显示（在第一页就能看到）
+      setTimeout(() => entryBox.classList.add('show'), 500);
 
-      adminPwd.addEventListener('keydown', (e) => {
+      entryPwd.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
-          if (adminPwd.value === ADMIN_PWD) {
-            adminPwd.value = '';
-            // 导航到最后一页（自白倒计时）
-            if (typeof window.goToPage === 'function') {
-              window.goToPage(5);
-            }
-            // 如果还没解锁，手动触发解锁
-            const revealContent = document.getElementById('revealContent');
-            if (revealContent && !revealContent.classList.contains('show')) {
-              // 隐藏倒计时区域
-              document.querySelectorAll('.countdown, .countdown-intro, .countdown-date').forEach(el => {
-                el.style.opacity = '0';
-                el.style.transition = 'opacity 1s ease';
-              });
-              // 金色光芒
-              const section = document.querySelector('.sec-countdown');
-              for (let i = 0; i < 20; i++) {
-                const ray = document.createElement('div');
-                ray.style.cssText = [
-                  'position:absolute;top:50%;left:50%;',
-                  'width:2px;height:0;',
-                  'background:linear-gradient(to top,transparent,#ffd700aa,transparent);',
-                  'transform-origin:bottom center;',
-                  `transform:translate(-50%,-100%) rotate(${(360/20)*i}deg);`,
-                  'animation:rayShoot 1.5s ease-out forwards;',
-                  `animation-delay:${Math.random()*0.3}s;`,
-                  'pointer-events:none;z-index:5;'
-                ].join('');
-                section.appendChild(ray);
-              }
-              // 显示自白内容
+          if (entryPwd.value === ENTRY_PWD) {
+            entryPwd.value = '';
+            window.__bypassTimeLock = true; // 解锁时间锁
+
+            // 如果信封还没打开，自动打开
+            const wrap = document.querySelector('.envelope-wrap');
+            const card = document.querySelector('.envelope-card');
+            if (wrap && card && !card.classList.contains('rise')) {
+              wrap.click(); // 触发信封开启动画
+
+              // 信封动画完成后，自动进密码页
               setTimeout(() => {
-                revealContent.classList.add('show');
+                createSparkleBurstFromCenter();
+                envelope.classList.add('fade-out');
                 setTimeout(() => {
-                  const title = document.getElementById('revealTitle');
-                  if (title) title.classList.add('show');
-                }, 500);
-                document.querySelectorAll('.rline').forEach((line, i) => {
+                  envelope.style.display = 'none';
+                  gate.style.display = 'flex';
+                  // 再自动提交密码
                   setTimeout(() => {
-                    line.style.opacity = '1';
-                    line.style.transform = 'translateY(0)';
-                    line.style.transition = 'all 0.8s ease';
-                  }, 1200 + i * 600);
-                });
-              }, 2500);
+                    if (!gate.classList.contains('hidden')) {
+                      const pwdInput = document.getElementById('pwd');
+                      if (pwdInput) {
+                        pwdInput.value = ENTRY_PWD;
+                        pwdInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+                      }
+                    }
+                  }, 500);
+                }, 800);
+              }, 2000);
+            } else {
+              // 信封已开，直接关密码页
+              if (gate && !gate.classList.contains('hidden')) {
+                const pwdInput = document.getElementById('pwd');
+                if (pwdInput) {
+                  pwdInput.value = ENTRY_PWD;
+                  pwdInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+                }
+              }
             }
+
+            // 导航到最后一页 + 解锁隐藏内容（作为奖励）
+            setTimeout(() => {
+              if (typeof window.goToPage === 'function') {
+                window.goToPage(5);
+              }
+              const revealContent = document.getElementById('revealContent');
+              if (revealContent && !revealContent.classList.contains('show')) {
+                document.querySelectorAll('.countdown, .countdown-intro, .countdown-date').forEach(el => {
+                  el.style.opacity = '0';
+                  el.style.transition = 'opacity 1s ease';
+                });
+                const section = document.querySelector('.sec-countdown');
+                for (let i = 0; i < 20; i++) {
+                  const ray = document.createElement('div');
+                  ray.style.cssText = [
+                    'position:absolute;top:50%;left:50%;',
+                    'width:2px;height:0;',
+                    'background:linear-gradient(to top,transparent,#ffd700aa,transparent);',
+                    'transform-origin:bottom center;',
+                    `transform:translate(-50%,-100%) rotate(${(360/20)*i}deg);`,
+                    'animation:rayShoot 1.5s ease-out forwards;',
+                    `animation-delay:${Math.random()*0.3}s;`,
+                    'pointer-events:none;z-index:5;'
+                  ].join('');
+                  section.appendChild(ray);
+                }
+                setTimeout(() => {
+                  revealContent.classList.add('show');
+                  setTimeout(() => {
+                    const title = document.getElementById('revealTitle');
+                    if (title) title.classList.add('show');
+                  }, 500);
+                  document.querySelectorAll('.rline').forEach((line, i) => {
+                    setTimeout(() => {
+                      line.style.opacity = '1';
+                      line.style.transform = 'translateY(0)';
+                      line.style.transition = 'all 0.8s ease';
+                    }, 1200 + i * 600);
+                  });
+                }, 2500);
+              }
+            }, 3500);
           } else {
-            adminPwd.style.borderColor = '#ff446688';
-            setTimeout(() => adminPwd.style.borderColor = '#f5c6d033', 2000);
+            entryPwd.style.borderColor = '#ff446688';
+            setTimeout(() => entryPwd.style.borderColor = '#f5c6d033', 2000);
           }
         }
       });
+
+      // 从中心发射星光（用于自动开信）
+      function createSparkleBurstFromCenter() {
+        const envelope = document.querySelector('.envelope-wrap');
+        if (!envelope) return;
+        const rect = envelope.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        if (typeof createSparkleBurst === 'function') {
+          createSparkleBurst(cx, cy);
+        }
+      }
     })();
   </script>
 
