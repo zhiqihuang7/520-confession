@@ -765,10 +765,12 @@
     }
     .admin-preview .entry-hint {
       text-align: center;
-      font-size: 0.6rem;
-      color: #f5c6d044;
-      letter-spacing: 0.1em;
-      margin-bottom: 4px;
+      font-size: 0.65rem;
+      color: #f5c6d088;
+      line-height: 1.6;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+      max-width: 160px;
     }
     .admin-preview input {
       width: 90px; padding: 7px 14px;
@@ -826,7 +828,7 @@
 
   <!-- ========== 快捷密码入口（右下角，输入密码 0919 解锁全部内容） ========== -->
   <div class="admin-preview" id="adminPreview">
-    <div class="entry-hint">✦ 输入密码 ✦</div>
+    <div class="entry-hint">嘘… 想偷偷看的话<br>可以在这里输入密码哦 ✨</div>
     <input type="password" id="adminPwd" placeholder="🔑" maxlength="8" autocomplete="off">
   </div>
 
@@ -1233,27 +1235,8 @@
       }
     });
 
-    // 手机也支持自动提交（企业微信 X5 内核兼容）
-    pwdInput.addEventListener('input', () => {
-      if (pwdInput.value.length >= 4) {
-        if (pwdInput.value === PASSWORD) {
-          gate.classList.add('hidden');
-          document.getElementById('adminPreview').classList.remove('show');
-          setTimeout(() => {
-            gate.style.display = 'none';
-            main.classList.add('show');
-            initMain();
-          }, 800);
-        } else {
-          hint.classList.add('show');
-          pwdInput.style.borderColor = '#ff446688';
-          setTimeout(() => {
-            hint.classList.remove('show');
-            pwdInput.style.borderColor = '#f5c6d0aa';
-          }, 4500);
-        }
-      }
-    });
+    // 手机兼容：input 事件占位（提交靠按钮/回车）
+    pwdInput.addEventListener('input', () => {});
 
     // 确认按钮点击
     document.getElementById('pwdBtn').addEventListener('click', () => {
