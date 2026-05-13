@@ -921,9 +921,34 @@
         setTimeout(() => container.remove(), 1800);
       }
 
+      // 时间锁：520 之前打不开
+      const OPEN_TIME = new Date('2026-05-20T00:00:00+08:00').getTime();
+      let timeHint = null;
+
       let opened = false;
       wrap.addEventListener('click', () => {
         if (opened) return;
+
+        // 时间未到：显示提示
+        if (Date.now() < OPEN_TIME) {
+          if (timeHint) return;
+          timeHint = document.createElement('div');
+          timeHint.style.cssText = `
+            position:absolute;bottom:-60px;left:50%;transform:translateX(-50%);
+            font-size:0.8rem;color:#f5c6d0aa;letter-spacing:0.15em;
+            white-space:nowrap;animation:fadeInUp .6s ease;
+          `;
+          // 计算剩余时间
+          const diff = OPEN_TIME - Date.now();
+          const d = Math.floor(diff / 86400000);
+          const h = Math.floor((diff % 86400000) / 3600000);
+          const m = Math.floor((diff % 3600000) / 60000);
+          timeHint.textContent = d > 0 ? `还有 ${d}天${h}小时，这封信才会到你手中 💌` : `还有 ${h}小时${m}分钟，这封信才会到你手中 💌`;
+          wrap.appendChild(timeHint);
+          setTimeout(() => { timeHint.remove(); timeHint = null; }, 3000);
+          return;
+        }
+
         opened = true;
         const rect = wrap.getBoundingClientRect();
         const cx = rect.left + rect.width / 2;
@@ -1509,22 +1534,21 @@
         } catch(e) {}
       }
 
-      // 特效3：流星左下
+      // 特效3：流星（与页面背景流星方向一致：左下）
       function meteorTrail(x, y) {
         try {
           const box = document.createElement('div');
           box.style.cssText = `position:fixed;left:${x}px;top:${y}px;pointer-events:none;z-index:999;`;
           document.body.appendChild(box);
           for (let i = 0; i < 6; i++) {
-            const a = Math.PI*0.75 + (Math.random()-.5)*.3;
-            const d = 100+Math.random()*80;
-            const sx = Math.cos(a)*d;
-            const sy = -Math.sin(a)*d;
+            // 固定方向：左下（-45度角，与 meteorFall 的 translate(-507,507) 一致）
+            const sx = -(80 + Math.random() * 80);
+            const sy = 80 + Math.random() * 80;
             const m = document.createElement('div');
             m.style.cssText = `position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;box-shadow:0 0 4px 2px #fff,0 0 8px 4px #f5c6d0;animation:mfly .8s ease-out forwards;--sx:${sx}px;--sy:${sy}px;`;
             box.appendChild(m);
             const t = document.createElement('div');
-            t.style.cssText = `position:absolute;top:0;left:0;width:70px;height:1px;background:linear-gradient(to right,#fff0,#f5c6d0,#fff0);transform:rotate(${-a*180/Math.PI+180}deg);transform-origin:0 0;animation:mfly .8s ease-out forwards;--sx:${sx}px;--sy:${sy}px;`;
+            t.style.cssText = `position:absolute;top:0;left:0;width:70px;height:1px;background:linear-gradient(to right,#fff0,#f5c6d0,#fff0);transform:rotate(45deg);transform-origin:0 0;animation:mfly .8s ease-out forwards;--sx:${sx}px;--sy:${sy}px;`;
             box.appendChild(t);
           }
           setTimeout(() => box.remove(), 900);
