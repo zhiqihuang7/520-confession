@@ -299,6 +299,21 @@
       box-shadow: 0 0 20px #f5c6d033;
     }
     #gate input::placeholder { color: #f5c6d066; letter-spacing: 0.2em; }
+    .pwd-submit {
+      margin-top: 1rem; padding: 10px 32px;
+      background: transparent;
+      border: 1px solid #f5c6d066;
+      border-radius: 30px;
+      color: #f5c6d0aa;
+      font-size: 0.85rem; letter-spacing: 0.2em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .pwd-submit:hover {
+      border-color: #f5c6d0;
+      color: #f5c6d0;
+      box-shadow: 0 0 15px #f5c6d033;
+    }
     #gate .hint {
       margin-top: 1rem; font-size: 0.8rem;
       color: #806070; opacity: 0;
@@ -804,6 +819,7 @@
     <h1>萱</h1>
     <p class="subtitle">输入一个特别的数字</p>
     <input type="text" id="pwd" placeholder="____" maxlength="8" autocomplete="off">
+    <button id="pwdBtn" class="pwd-submit">✦ 确认 ✦</button>
     <p class="hint" id="hint">再想想？提示：🌙 你每年都过的那个农历日子</p>
     <p class="gate-hint">💡 农历月份 + 日期，一共四位哦</p>
   </div>
@@ -1217,10 +1233,45 @@
       }
     });
 
-    // 手机也支持点击"确认"
+    // 手机也支持自动提交（企业微信 X5 内核兼容）
     pwdInput.addEventListener('input', () => {
       if (pwdInput.value.length >= 4) {
-        // 自动检查（可选：去掉这个 if 你想要必须按回车）
+        if (pwdInput.value === PASSWORD) {
+          gate.classList.add('hidden');
+          document.getElementById('adminPreview').classList.remove('show');
+          setTimeout(() => {
+            gate.style.display = 'none';
+            main.classList.add('show');
+            initMain();
+          }, 800);
+        } else {
+          hint.classList.add('show');
+          pwdInput.style.borderColor = '#ff446688';
+          setTimeout(() => {
+            hint.classList.remove('show');
+            pwdInput.style.borderColor = '#f5c6d0aa';
+          }, 4500);
+        }
+      }
+    });
+
+    // 确认按钮点击
+    document.getElementById('pwdBtn').addEventListener('click', () => {
+      if (pwdInput.value === PASSWORD) {
+        gate.classList.add('hidden');
+        document.getElementById('adminPreview').classList.remove('show');
+        setTimeout(() => {
+          gate.style.display = 'none';
+          main.classList.add('show');
+          initMain();
+        }, 800);
+      } else {
+        hint.classList.add('show');
+        pwdInput.style.borderColor = '#ff446688';
+        setTimeout(() => {
+          hint.classList.remove('show');
+          pwdInput.style.borderColor = '#f5c6d0aa';
+        }, 4500);
       }
     });
 
