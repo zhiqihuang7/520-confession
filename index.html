@@ -1914,73 +1914,87 @@
             entryPwd.value = '';
             window.__bypassTimeLock = true; // 解锁时间锁
 
-            // 如果信封还没打开，自动打开
-            const wrap = document.querySelector('.envelope-wrap');
-            const card = document.querySelector('.envelope-card');
-            if (wrap && card && !card.classList.contains('rise')) {
-              wrap.click(); // 触发信封开启动画
+            const envEl = document.getElementById('envelope');
+            const gEl = document.getElementById('gate');
+            const mEl = document.getElementById('main');
 
-              // 信封动画完成后，自动进密码页
+            // 自动走完全流程：开信封 → 关密码页 → 进主站 → 翻到最后
+            function openEnvelopeSequence() {
+              // 先尝试点击信封触发正常动画（仅当还未打开时）
+              const wrap = document.querySelector('.envelope-wrap');
+              const card = document.querySelector('.envelope-card');
+              if (wrap && card && !card.classList.contains('rise')) {
+                wrap.click();
+              }
+              // 无论如何，延时关闭信封和密码页
               setTimeout(() => {
-                createSparkleBurstFromCenter();
-                envelope.classList.add('fade-out');
+                if (envEl) { envEl.classList.add('fade-out'); }
                 setTimeout(() => {
-                  envelope.style.display = 'none';
-                  gate.style.display = 'flex';
-                  // 再自动提交密码
+                  if (envEl) { envEl.style.display = 'none'; }
+                  if (gEl) { gEl.style.display = 'flex'; }
+                  // 自动填入密码页的密码并触发验证
                   setTimeout(() => {
-                    if (!gate.classList.contains('hidden')) {
-                      const pwdInput = document.getElementById('pwd');
-                      if (pwdInput) {
-                        pwdInput.value = ENTRY_PWD;
-                        pwdInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-                      }
+                    const pi = document.getElementById('pwd');
+                    if (pi && gEl && !gEl.classList.contains('hidden')) {
+                      pi.value = ENTRY_PWD;
+                      pi.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
                     }
-                  }, 500);
+                  }, 300);
                 }, 800);
-              }, 2000);
+              }, 1500);
+            }
+
+            // 判断信封是否已打开
+            const cardEl = document.querySelector('.envelope-card');
+            if (cardEl && !cardEl.classList.contains('rise')) {
+              // 信封未开，走完整流程
+              openEnvelopeSequence();
             } else {
               // 信封已开，直接关密码页
-              if (gate && !gate.classList.contains('hidden')) {
-                const pwdInput = document.getElementById('pwd');
-                if (pwdInput) {
-                  pwdInput.value = ENTRY_PWD;
-                  pwdInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+              if (gEl && !gEl.classList.contains('hidden')) {
+                const pi = document.getElementById('pwd');
+                if (pi) {
+                  pi.value = ENTRY_PWD;
+                  pi.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
                 }
               }
             }
 
-            // 导航到最后一页 + 解锁隐藏内容（作为奖励）
+            // 导航到最后一页 + 解锁隐藏内容
             setTimeout(() => {
               if (typeof window.goToPage === 'function') {
                 window.goToPage(5);
               }
-              const revealContent = document.getElementById('revealContent');
-              if (revealContent && !revealContent.classList.contains('show')) {
+              const rc = document.getElementById('revealContent');
+              if (rc && !rc.classList.contains('show')) {
+                // 隐藏倒计时
                 document.querySelectorAll('.countdown, .countdown-intro, .countdown-date').forEach(el => {
                   el.style.opacity = '0';
                   el.style.transition = 'opacity 1s ease';
                 });
-                const section = document.querySelector('.sec-countdown');
-                for (let i = 0; i < 20; i++) {
-                  const ray = document.createElement('div');
-                  ray.style.cssText = [
-                    'position:absolute;top:50%;left:50%;',
-                    'width:2px;height:0;',
-                    'background:linear-gradient(to top,transparent,#ffd700aa,transparent);',
-                    'transform-origin:bottom center;',
-                    `transform:translate(-50%,-100%) rotate(${(360/20)*i}deg);`,
-                    'animation:rayShoot 1.5s ease-out forwards;',
-                    `animation-delay:${Math.random()*0.3}s;`,
-                    'pointer-events:none;z-index:5;'
-                  ].join('');
-                  section.appendChild(ray);
+                // 金色光芒射线
+                const sec = document.querySelector('.sec-countdown');
+                if (sec) {
+                  for (let i = 0; i < 20; i++) {
+                    const ray = document.createElement('div');
+                    ray.style.cssText = [
+                      'position:absolute;top:50%;left:50%;',
+                      'width:2px;height:0;',
+                      'background:linear-gradient(to top,transparent,#ffd700aa,transparent);',
+                      'transform-origin:bottom center;',
+                      `transform:translate(-50%,-100%) rotate(${(360/20)*i}deg);`,
+                      'animation:rayShoot 1.5s ease-out forwards;',
+                      `animation-delay:${Math.random()*0.3}s;`,
+                      'pointer-events:none;z-index:5;'
+                    ].join('');
+                    sec.appendChild(ray);
+                  }
                 }
                 setTimeout(() => {
-                  revealContent.classList.add('show');
+                  rc.classList.add('show');
                   setTimeout(() => {
-                    const title = document.getElementById('revealTitle');
-                    if (title) title.classList.add('show');
+                    const t = document.getElementById('revealTitle');
+                    if (t) t.classList.add('show');
                   }, 500);
                   document.querySelectorAll('.rline').forEach((line, i) => {
                     setTimeout(() => {
@@ -1991,25 +2005,13 @@
                   });
                 }, 2500);
               }
-            }, 3500);
+            }, 3000);
           } else {
             entryPwd.style.borderColor = '#ff446688';
             setTimeout(() => entryPwd.style.borderColor = '#f5c6d033', 2000);
           }
         }
       });
-
-      // 从中心发射星光（用于自动开信）
-      function createSparkleBurstFromCenter() {
-        const envelope = document.querySelector('.envelope-wrap');
-        if (!envelope) return;
-        const rect = envelope.getBoundingClientRect();
-        const cx = rect.left + rect.width / 2;
-        const cy = rect.top + rect.height / 2;
-        if (typeof createSparkleBurst === 'function') {
-          createSparkleBurst(cx, cy);
-        }
-      }
     })();
   </script>
 
