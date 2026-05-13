@@ -559,8 +559,7 @@
       100% { transform: translateY(-100vh) translateX(50px) scale(0); opacity: 0; }
     }
 
-    /* ========== 点击爱心（canvas-confetti） ========== */
-    /* 原生 CSS 已移除，改用 canvas-confetti */
+    /* ========== 点击星光 ========== */
 
     /* ========== 翻页模式 ========== */
     html, body { overflow: hidden; height: 100%; }
@@ -1401,19 +1400,19 @@
       animate();
     }
 
-    // ========== 鼠标光晕 ==========
+    // ========== 鼠标光晕（GPU合成加速） ==========
     function initGlow() {
       const glow = document.createElement('div');
       glow.style.cssText = `
         position:fixed;pointer-events:none;z-index:2;
         width:200px;height:200px;border-radius:50%;
         background:radial-gradient(circle,#ff6b9d22,transparent 70%);
-        transform:translate(-50%,-50%);transition:opacity 0.3s;
+        will-change:transform;
       `;
+      glow.style.transform = 'translate(-50%,-50%)';
       document.body.appendChild(glow);
       document.addEventListener('mousemove', e => {
-        glow.style.left = e.clientX + 'px';
-        glow.style.top = e.clientY + 'px';
+        glow.style.transform = `translate(${e.clientX - 100}px,${e.clientY - 100}px)`;
       });
     }
 
@@ -1527,24 +1526,34 @@
       }, 2500);
     }
 
-    // ========== 鼠标拖尾特效 ==========
+    // ========== 鼠标点击星光（轻量版，取代FairyDustCursor） ==========
     function initCursorEffect() {
-      function setup() {
-        try {
-          if (typeof FairyDustCursor !== 'undefined') {
-            new FairyDustCursor({
-              colors: ['#ff6b9d', '#f5c6d0', '#ffd700', '#ffb6c1']
-            });
-          }
-        } catch(e) { console.warn('cursor-effect init failed:', e); }
-      }
-      if (typeof FairyDustCursor !== 'undefined') { setup(); }
-      else {
-        const check = setInterval(() => {
-          if (typeof FairyDustCursor !== 'undefined') { clearInterval(check); setup(); }
-        }, 200);
-        setTimeout(() => clearInterval(check), 5000);
-      }
+      const colors = ['#ff6b9d', '#f5c6d0', '#ffd700', '#ffb6c1'];
+      let lastTime = 0;
+      document.addEventListener('mousemove', (e) => {
+        const now = Date.now();
+        if (now - lastTime < 60) return; // 限速 ≈16次/秒
+        lastTime = now;
+        const p = document.createElement('div');
+        const si = 2 + Math.random() * 3;
+        p.style.cssText = [
+          'position:fixed',
+          `left:${e.clientX}px`,`top:${e.clientY}px`,
+          `width:${si}px`,`height:${si}px`,
+          'border-radius:50%',
+          `background:${colors[Math.floor(Math.random()*colors.length)]}`,
+          'pointer-events:none','z-index:9999',
+          'opacity:0.8',
+          'transition:all 0.6s ease-out',
+          'transform:translate(0,0)'
+        ].join(';');
+        document.body.appendChild(p);
+        requestAnimationFrame(() => {
+          p.style.transform = `translate(${(Math.random()-0.5)*40}px,${-20-Math.random()*30}px)`;
+          p.style.opacity = '0';
+        });
+        setTimeout(() => p.remove(), 700);
+      });
     }
 
     // ========== 自白倒计时 ==========
@@ -1700,7 +1709,7 @@
     // 原来有两个 initMain，已合并为一个
     // function initMain() 已在上方定义（line ~1280）
 
-    // ========== 背景粒子 ==========
+    // ========== 背景粒子（降频） ==========
     function initParticles() {
       const colors = ['#ff6b9d33', '#f5c6d033', '#ff9de833'];
       setInterval(() => {
@@ -1711,9 +1720,10 @@
         p.style.width = p.style.height = (3 + Math.random() * 5) + 'px';
         p.style.background = colors[Math.floor(Math.random() * colors.length)];
         p.style.animationDuration = (8 + Math.random() * 10) + 's';
+        p.style.willChange = 'transform,opacity';
         document.body.appendChild(p);
         setTimeout(() => p.remove(), 18000);
-      }, 400);
+      }, 600);
     }
 
     // ========== 各页面点击特效 ==========
@@ -2034,8 +2044,6 @@
     })();
   </script>
 
-  <!-- CDN 库（异步加载，不阻塞页面） -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js" async></script>
-  <script src="https://unpkg.com/cursor-effects@latest/dist/browser.js" async></script>
+  <!-- 无外部依赖，全部原生 -->
 </body>
 </html>
