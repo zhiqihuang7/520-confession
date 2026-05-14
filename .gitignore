@@ -21,3 +21,7 @@ build/
 .env
 .env.local
 .env.*.local
+
+# Draft / working files
+*草稿*.md
+*draft*.md

@@ -307,8 +307,10 @@
       color: #f5c6d0aa;
       font-size: 0.85rem; letter-spacing: 0.2em;
       cursor: pointer;
+      outline: none;
       transition: all 0.3s ease;
     }
+    .pwd-submit:focus { outline: none; }
     .pwd-submit:hover {
       border-color: #f5c6d0;
       color: #f5c6d0;
@@ -442,6 +444,31 @@
       margin-top: 2rem; text-align: right;
       font-size: 0.9rem; color: #f5c6d0aa;
       font-style: italic;
+    }
+
+    /* ========== 告白卡片 ========== */
+    .sec-confession {
+      background: linear-gradient(180deg, #1a0a1e 0%, #0d1a1a 100%);
+    }
+    .confession-card {
+      max-width: 620px; width: 90%;
+      background: #ffffff08; border: 1px solid #f5c6d022;
+      border-radius: 24px; padding: 55px 45px;
+      backdrop-filter: blur(10px);
+      opacity: 0; transform: translateY(40px);
+      transition: all 1s ease;
+    }
+    .confession-card.visible {
+      opacity: 1; transform: translateY(0);
+    }
+    .confession-card p {
+      font-size: 1.1rem; line-height: 2.2;
+      color: #e8d0d8; font-weight: 300;
+      text-align: center;
+    }
+    @media (max-width: 640px) {
+      .confession-card { padding: 40px 25px; }
+      .confession-card p { font-size: 1rem; line-height: 2; }
     }
 
     /* ========== Section 3: 时间线 ========== */
@@ -835,19 +862,64 @@
 
     </section>
 
-    <!-- Section 2: 心意 -->
-    <section class="section sec-message">
-      <div class="message-card" data-animate>
-        <div class="label">💌 写给萱萱</div>
+    <!-- Section 2: 告白 ① 新的形式 -->
+    <section class="section sec-confession">
+      <div class="confession-card" data-animate>
         <p>
-          <!-- ✏️ 在这里写你想对萱萱说的话 -->
-          [ 在这里写下你的心意 ]
-          <br><br>
-          可以是你们的故事，可以是你的心情，
-          <br>
-          可以是任何你想告诉她的话。
+          萱萱，之前都是手写信，<br>
+          这次我换一个新的形式，<br>
+          希望你会喜欢，不会觉得幼稚吧。<br><br>
+          这个域名一看就是我特意搞的啦，<br>
+          一年内都会一直在的。<br><br>
+          我还记得我的初衷，<br>
+          我希望我可以让你更开心。<br><br>
+          那对耳夹希望你会喜欢，<br>
+          因为之前看到你带的也是这种珍珠类型的？<br>
+          不过掉了一个&nbsp;😢<br>
+          悲伤的事故。
         </p>
-        <div class="signature">—— 永远喜欢你的人 ❤️</div>
+      </div>
+    </section>
+
+    <!-- Section 3: 告白 ② 为什么喜欢你 -->
+    <section class="section sec-confession">
+      <div class="confession-card" data-animate>
+        <p>
+          我记得之前问过你，<br>
+          你为什么会喜欢我呢？<br><br>
+          我也想按我的视角来回答一下这个问题，<br>
+          （不过今天只回答一部分啦）<br><br>
+          喜欢你，对我来说有很多方面的原因呢。<br>
+          我喜欢你的品质，<br>
+          很少有人有你这么自律和健康的作息，<br>
+          也很少有人有你这么独立，<br>
+          按我来看你把时间什么都安排得很有规划。<br><br>
+          然后我喜欢你的精神和气质，<br>
+          在我看来你一直是高能量和元气十足啦，<br>
+          我之前似乎自诩低能量？<br>
+          其实我也属于高能量人群（极其严肃），<br>
+          不过或许我们的高能量重叠度不高而已。<br><br>
+          小插曲：<br>
+          本来其他人发抽象表情包给我的时候，<br>
+          我会直接回复死亡微笑，<br>
+          不过你的话倒是无所谓啦，<br>
+          反而觉得挺有萱萱的特色。
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 4: 告白 ③ 说不出的感觉 -->
+    <section class="section sec-confession">
+      <div class="confession-card" data-animate>
+        <p>
+          不过，上面的品质什么的，<br>
+          是远远没有说完的，<br><br>
+          但是，对我来说这些不是最重要的，<br>
+          重要的是目前我还说不出的那种感觉。<br><br>
+          除了这些，<br>
+          还有一些别的话明天再和你说吧，<br>
+          希望今天的这些说清楚了吧。
+        </p>
       </div>
     </section>
 
@@ -884,7 +956,7 @@
     <section class="section sec-ending">
       <div class="ending-text" data-animate>
         <div class="big">520</div>
-        <div class="sub">我爱你，萱萱 💕</div>
+        <div class="sub">今天想说的话，都在这里了 💕</div>
       </div>
       <div class="ending-date">2026.05.20</div>
     </section>
