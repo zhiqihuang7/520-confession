@@ -388,6 +388,27 @@
       letter-spacing: 0.2em;
       animation: pulse 2s ease infinite;
     }
+    /* ========== 告白升华（能喜欢你 系列） ========== */
+    .sec-love {
+      background: linear-gradient(180deg, #1a0a1e 0%, #0a0a0a 100%);
+    }
+    .sec-love .big-love-text {
+      font-size: clamp(2rem, 7vw, 4rem);
+      font-weight: 300; color: #f5c6d0;
+      text-align: center; line-height: 1.6;
+      opacity: 0; transform: translateY(40px);
+      transition: all 1.2s ease;
+    }
+    .sec-love .big-love-text.visible {
+      opacity: 1; transform: translateY(0);
+    }
+    .sec-love .big-love-text .hl-pink {
+      color: #ff6b9d; font-weight: 400;
+    }
+    .sec-love .big-love-text .hl-gold {
+      color: #ffd700; font-weight: 400;
+    }
+
     .click-hint {
       position: absolute; bottom: 100px;
       font-size: 0.75rem; color: #f5c6d0aa;
@@ -944,8 +965,24 @@
           还有一些别的话明天再和你说吧，<br>
           希望今天的这些说清楚了吧。<br><br>
           最后的最后，
-          这是一个喜欢你的人想对你说的话。
+          这是一个喜欢你的人想对你说的话：
         </p>
+      </div>
+    </section>
+
+    <!-- Section 5: 能喜欢你 -->
+    <section class="section sec-love">
+      <div class="big-love-text" data-animate>
+        能喜欢你<br>
+        是一件很<span class="hl-pink">幸运</span>的事
+      </div>
+    </section>
+
+    <!-- Section 6: 能被你喜欢 -->
+    <section class="section sec-love">
+      <div class="big-love-text" data-animate>
+        能被你喜欢<br>
+        是一件更<span class="hl-gold">幸运</span>的事
       </div>
     </section>
 
