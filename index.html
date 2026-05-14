@@ -396,17 +396,26 @@
       font-size: clamp(2rem, 7vw, 4rem);
       font-weight: 300; color: #f5c6d0;
       text-align: center; line-height: 1.6;
-      opacity: 0; transform: translateY(40px);
-      transition: all 1.2s ease;
-    }
-    .sec-love .big-love-text.visible {
-      opacity: 1; transform: translateY(0);
     }
     .sec-love .big-love-text .hl-pink {
       color: #ff6b9d; font-weight: 400;
     }
     .sec-love .big-love-text .hl-gold {
       color: #ffd700; font-weight: 400;
+    }
+    /* 逐字浮现特效 */
+    .love-char {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(20px) scale(0.4);
+      animation: loveReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      animation-delay: calc(var(--i) * 0.045s);
+    }
+    .love-break { display: block; content: ''; height: 0.4em; }
+    @keyframes loveReveal {
+      0% { opacity: 0; transform: translateY(20px) scale(0.4); text-shadow: 0 0 0 transparent; }
+      50% { opacity: 1; transform: translateY(-3px) scale(1.12); text-shadow: 0 0 25px currentColor; }
+      100% { opacity: 1; transform: translateY(0) scale(1); text-shadow: 0 0 8px rgba(245,198,208,0.3); }
     }
 
     .click-hint {
@@ -972,7 +981,7 @@
 
     <!-- Section 5: 能喜欢你 -->
     <section class="section sec-love">
-      <div class="big-love-text" data-animate>
+      <div class="big-love-text" data-animate data-love>
         能喜欢你<br>
         是一件很<span class="hl-pink">幸运</span>的事
       </div>
@@ -980,7 +989,7 @@
 
     <!-- Section 6: 能被你喜欢 -->
     <section class="section sec-love">
-      <div class="big-love-text" data-animate>
+      <div class="big-love-text" data-animate data-love>
         能被你喜欢<br>
         是一件更<span class="hl-gold">幸运</span>的事
       </div>
@@ -1782,12 +1791,45 @@
     function triggerAnimations(section) {
       if (!section) return;
       section.querySelectorAll('[data-animate]').forEach((el, i) => {
-        setTimeout(() => el.classList.add('visible'), i * 150);
+        setTimeout(() => {
+          el.classList.add('visible');
+          // 触发逐字动画
+          if (el.hasAttribute('data-love')) {
+            initLoveChars(el);
+          }
+        }, i * 150);
       });
       // 特殊：星空 canvas 启动
       if (section.classList.contains('sec-stars') && typeof initStarCanvas === 'function') {
         initStarCanvas();
       }
+    }
+
+    // 逐字拆分 + 动画
+    function initLoveChars(container) {
+      const html = container.innerHTML;
+      // 按 <br> 拆成行，保留标签
+      const lines = html.split(/<br\s*\/?>/i);
+      let result = '';
+      let charIdx = 0;
+      lines.forEach((line, li) => {
+        line.split(/(<[^>]+>)/).forEach(part => {
+          if (part.startsWith('<')) {
+            // 保留标签（如 <span class="hl-pink">）
+            result += part;
+          } else {
+            // 每个字符包成 love-char
+            result += part.split('').map(c => {
+              const el = c === ' ' ? '&nbsp;' : c;
+              return `<span class="love-char" style="--i:${charIdx++}">${el}</span>`;
+            }).join('');
+          }
+        });
+        if (li < lines.length - 1) {
+          result += '<span class="love-break"></span>';
+        }
+      });
+      container.innerHTML = result;
     }
 
     // ========== 开场页装饰 ==========
