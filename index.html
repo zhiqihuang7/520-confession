@@ -1814,20 +1814,19 @@
     // 逐字拆分 + 动画
     function initLoveChars(container) {
       const html = container.innerHTML;
-      // 按 <br> 拆成行，保留标签
       const lines = html.split(/<br\s*\/?>/i);
       let result = '';
       let charIdx = 0;
       lines.forEach((line, li) => {
         line.split(/(<[^>]+>)/).forEach(part => {
           if (part.startsWith('<')) {
-            // 保留标签（如 <span class="hl-pink">）
             result += part;
           } else {
-            // 每个字符包成 love-char
-            result += part.split('').map(c => {
-              const el = c === ' ' ? '&nbsp;' : c;
-              return `<span class="love-char" style="--i:${charIdx++}">${el}</span>`;
+            // 去掉缩进空格，再逐字拆分
+            const trimmed = part.replace(/[\n\r]+/g, '').replace(/^\s+|\s+$/g, '');
+            if (!trimmed) return;
+            result += trimmed.split('').map(c => {
+              return `<span class="love-char" style="--i:${charIdx++}">${c}</span>`;
             }).join('');
           }
         });
