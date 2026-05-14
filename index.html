@@ -292,9 +292,12 @@
       font-size: 1.1rem; color: #f5c6d0;
       text-align: center; letter-spacing: 0.5em;
       outline: none; width: 260px;
+      -webkit-tap-highlight-color: transparent;
       transition: border-color 0.3s, box-shadow 0.3s;
     }
-    #gate input:focus {
+    #gate input:focus,
+    #gate input:focus-visible {
+      outline: none;
       border-color: #f5c6d0;
       box-shadow: 0 0 20px #f5c6d033;
     }
@@ -308,9 +311,15 @@
       font-size: 0.85rem; letter-spacing: 0.2em;
       cursor: pointer;
       outline: none;
+      -webkit-tap-highlight-color: transparent;
       transition: all 0.3s ease;
     }
-    .pwd-submit:focus { outline: none; }
+    .pwd-submit:focus,
+    .pwd-submit:focus-visible,
+    .pwd-submit:active {
+      outline: none; outline-offset: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
     .pwd-submit:hover {
       border-color: #f5c6d0;
       color: #f5c6d0;
@@ -380,12 +389,13 @@
       animation: pulse 2s ease infinite;
     }
     .click-hint {
-      position: absolute; bottom: 80px;
-      font-size: 0.7rem; color: #f5c6d066;
+      position: absolute; bottom: 100px;
+      font-size: 0.75rem; color: #f5c6d0aa;
       letter-spacing: 0.12em; text-align: center;
-      line-height: 1.7; opacity: 0;
+      line-height: 1.8; opacity: 0;
       transition: opacity 1.2s ease;
       pointer-events: none; user-select: none;
+      text-shadow: 0 0 12px #f5c6d044;
     }
     .click-hint.show { opacity: 1; }
 
@@ -449,6 +459,8 @@
     /* ========== 告白卡片 ========== */
     .sec-confession {
       background: linear-gradient(180deg, #1a0a1e 0%, #0d1a1a 100%);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
     .confession-card {
       max-width: 620px; width: 90%;
@@ -467,8 +479,9 @@
       text-align: center;
     }
     @media (max-width: 640px) {
-      .confession-card { padding: 40px 25px; }
-      .confession-card p { font-size: 1rem; line-height: 2; }
+      .sec-confession { padding: 30px 20px; }
+      .confession-card { padding: 30px 20px; }
+      .confession-card p { font-size: 0.92rem; line-height: 1.8; }
     }
 
     /* ========== Section 3: 时间线 ========== */
@@ -1598,9 +1611,9 @@
         const hint = document.getElementById('clickHint');
         if (hint) {
           hint.classList.add('show');
-          setTimeout(() => hint.classList.remove('show'), 6000);
+          setTimeout(() => hint.classList.remove('show'), 10000);
         }
-      }, 2500);
+      }, 1500);
 
 
     }
@@ -2057,21 +2070,39 @@
         setTimeout(() => { isTransitioning = false; }, 700);
       }
 
-      // 鼠标滚轮
+      // 鼠标滚轮（告白页可内部滚动，滚到底/顶才翻页）
       window.addEventListener('wheel', (e) => {
         e.preventDefault();
-        if (Math.abs(e.deltaY) < 30) return; // 忽略微小滚动
+        if (Math.abs(e.deltaY) < 30) return;
+        const sec = sections[current];
+        // 如果当前页有可滚动内容且未到边界，先内部滚动
+        if (sec.scrollHeight > sec.clientHeight) {
+          const atBottom = sec.scrollTop + sec.clientHeight >= sec.scrollHeight - 3;
+          const atTop = sec.scrollTop <= 3;
+          if ((e.deltaY > 0 && !atBottom) || (e.deltaY < 0 && !atTop)) {
+            sec.scrollTop += e.deltaY;
+            return;
+          }
+        }
         if (e.deltaY > 0) goToPage(current + 1);
         else goToPage(current - 1);
       }, { passive: false });
 
-      // 触摸滑动
+      // 触摸滑动（告白页可内部滚动，滚到底/顶才翻页）
       window.addEventListener('touchstart', (e) => {
         touchStartY = e.touches[0].clientY;
       }, { passive: true });
       window.addEventListener('touchend', (e) => {
         const diff = touchStartY - e.changedTouches[0].clientY;
         if (Math.abs(diff) > 50) {
+          const sec = sections[current];
+          if (sec.scrollHeight > sec.clientHeight) {
+            const atBottom = sec.scrollTop + sec.clientHeight >= sec.scrollHeight - 3;
+            const atTop = sec.scrollTop <= 3;
+            if ((diff < 0 && !atBottom) || (diff > 0 && !atTop)) {
+              return; // 让内部滚动处理
+            }
+          }
           if (diff > 0) goToPage(current + 1);
           else goToPage(current - 1);
         }
