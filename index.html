@@ -459,16 +459,17 @@
     /* ========== 告白卡片 ========== */
     .sec-confession {
       background: linear-gradient(180deg, #1a0a1e 0%, #0d1a1a 100%);
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
     }
     .confession-card {
       max-width: 620px; width: 90%;
+      max-height: 72vh;
       background: #ffffff08; border: 1px solid #f5c6d022;
       border-radius: 24px; padding: 55px 45px;
       backdrop-filter: blur(10px);
       opacity: 0; transform: translateY(40px);
       transition: all 1s ease;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
     .confession-card.visible {
       opacity: 1; transform: translateY(0);
@@ -478,10 +479,20 @@
       color: #e8d0d8; font-weight: 300;
       text-align: center;
     }
+    .confession-card::-webkit-scrollbar {
+      width: 3px;
+    }
+    .confession-card::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .confession-card::-webkit-scrollbar-thumb {
+      background: #f5c6d044;
+      border-radius: 2px;
+    }
     @media (max-width: 640px) {
-      .sec-confession { padding: 30px 20px; }
-      .confession-card { padding: 30px 20px; }
-      .confession-card p { font-size: 0.92rem; line-height: 1.8; }
+      .sec-confession { padding: 20px; }
+      .confession-card { padding: 28px 20px; max-height: 78vh; }
+      .confession-card p { font-size: 0.92rem; line-height: 1.9; }
     }
 
     /* ========== Section 3: 时间线 ========== */
@@ -2070,39 +2081,21 @@
         setTimeout(() => { isTransitioning = false; }, 700);
       }
 
-      // 鼠标滚轮（告白页可内部滚动，滚到底/顶才翻页）
+      // 鼠标滚轮
       window.addEventListener('wheel', (e) => {
         e.preventDefault();
-        if (Math.abs(e.deltaY) < 30) return;
-        const sec = sections[current];
-        // 如果当前页有可滚动内容且未到边界，先内部滚动
-        if (sec.scrollHeight > sec.clientHeight) {
-          const atBottom = sec.scrollTop + sec.clientHeight >= sec.scrollHeight - 3;
-          const atTop = sec.scrollTop <= 3;
-          if ((e.deltaY > 0 && !atBottom) || (e.deltaY < 0 && !atTop)) {
-            sec.scrollTop += e.deltaY;
-            return;
-          }
-        }
+        if (Math.abs(e.deltaY) < 30) return; // 忽略微小滚动
         if (e.deltaY > 0) goToPage(current + 1);
         else goToPage(current - 1);
       }, { passive: false });
 
-      // 触摸滑动（告白页可内部滚动，滚到底/顶才翻页）
+      // 触摸滑动
       window.addEventListener('touchstart', (e) => {
         touchStartY = e.touches[0].clientY;
       }, { passive: true });
       window.addEventListener('touchend', (e) => {
         const diff = touchStartY - e.changedTouches[0].clientY;
         if (Math.abs(diff) > 50) {
-          const sec = sections[current];
-          if (sec.scrollHeight > sec.clientHeight) {
-            const atBottom = sec.scrollTop + sec.clientHeight >= sec.scrollHeight - 3;
-            const atTop = sec.scrollTop <= 3;
-            if ((diff < 0 && !atBottom) || (diff > 0 && !atTop)) {
-              return; // 让内部滚动处理
-            }
-          }
           if (diff > 0) goToPage(current + 1);
           else goToPage(current - 1);
         }
