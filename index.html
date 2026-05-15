@@ -424,6 +424,27 @@
       100% { opacity: 1; transform: translateY(0) scale(1); text-shadow: 0 0 8px rgba(245,198,208,0.3); }
     }
 
+    /* ========== 提示页 & 答案页 ========== */
+    .sec-love .hint-text {
+      font-size: clamp(1.2rem, 4.5vw, 2rem);
+      font-weight: 300; color: #f5c6d0cc;
+      text-align: center; line-height: 2;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+    .sec-love .confess-text {
+      font-size: clamp(1.2rem, 4.5vw, 2rem);
+      font-weight: 300; color: #f5c6d0;
+      text-align: center; line-height: 2;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+    .sec-love .confess-text .hl-answer {
+      color: #ffd700; font-weight: 400;
+    }
+
     .click-hint {
       position: absolute; bottom: 100px;
       font-size: 0.75rem; color: #f5c6d0aa;
@@ -993,7 +1014,7 @@
       </div>
     </section>
 
-    <!-- Section 6: 能被你喜欢 -->
+    <!-- Section 5: 能被你喜欢 -->
     <section class="section sec-love">
       <div class="big-love-text" data-animate data-love>
         能被你喜欢<br>
@@ -1001,7 +1022,44 @@
       </div>
     </section>
 
-    <!-- Section 3: 时间线 -->
+    <!-- Section 6: 提示 -->
+    <section class="section sec-love">
+      <div class="hint-text" data-animate data-love>
+        <span class="love-char" style="--i:0">诶</span><span class="love-char" style="--i:1">，</span>
+        <span class="love-char" style="--i:2">是</span><span class="love-char" style="--i:3">不</span><span class="love-char" style="--i:4">是</span>
+        <span class="love-char" style="--i:5">还</span><span class="love-char" style="--i:6">有</span><span class="love-char" style="--i:7">什</span><span class="love-char" style="--i:8">么</span><span class="love-char" style="--i:9">没</span><span class="love-char" style="--i:10">说</span><span class="love-char" style="--i:11">呢</span><span class="love-char" style="--i:12">？</span>
+        <span class="love-break"></span>
+        <span class="love-char" style="--i:13">你</span><span class="love-char" style="--i:14">再</span><span class="love-char" style="--i:15">想</span><span class="love-char" style="--i:16">想</span><span class="love-char" style="--i:17">，</span>
+        <span class="love-break"></span>
+        <span class="love-char" style="--i:18">其</span><span class="love-char" style="--i:19">实</span>
+        <span class="love-char" style="--i:20">我</span><span class="love-char" style="--i:21">已</span><span class="love-char" style="--i:22">经</span>
+        <span class="love-char" style="--i:23">给</span><span class="love-char" style="--i:24">出</span>
+        <span class="love-char" style="--i:25">答</span><span class="love-char" style="--i:26">案</span>
+        <span class="love-char" style="--i:27">了</span><span class="love-char" style="--i:28">哦</span><span class="love-char" style="--i:29">。</span>
+      </div>
+    </section>
+
+    <!-- Section 7: 答案 -->
+    <section class="section sec-love">
+      <div class="confess-text" data-animate data-love>
+        <span class="love-char" style="--i:0">其</span><span class="love-char" style="--i:1">实</span><span class="love-char" style="--i:2">啊</span><span class="love-char" style="--i:3">，</span>
+        <span class="love-char" style="--i:4" class="hl-answer">看</span><span class="love-char" style="--i:5" class="hl-answer">到</span><span class="love-char" style="--i:6" class="hl-answer">你</span>
+        <span class="love-char" style="--i:7">就</span><span class="love-char" style="--i:8">想</span><span class="love-char" style="--i:9">笑</span><span class="love-char" style="--i:10">。</span>
+        <span class="love-break"></span>
+        <span class="love-char" style="--i:11">没</span><span class="love-char" style="--i:12">什</span><span class="love-char" style="--i:13">么</span>
+        <span class="love-char" style="--i:14">别</span><span class="love-char" style="--i:15">的</span>
+        <span class="love-char" style="--i:16">原</span><span class="love-char" style="--i:17">因</span><span class="love-char" style="--i:18">，</span>
+        <span class="love-break"></span>
+        <span class="love-char" style="--i:19">就</span><span class="love-char" style="--i:20">是</span>
+        <span class="love-char" style="--i:21" class="hl-answer">单</span><span class="love-char" style="--i:22" class="hl-answer">纯</span>
+        <span class="love-char" style="--i:23" class="hl-answer">喜</span><span class="love-char" style="--i:24" class="hl-answer">欢</span><span class="love-char" style="--i:25" class="hl-answer">你</span><span class="love-char" style="--i:26">。</span>
+        <span class="love-break"></span>
+        <span class="love-char" style="--i:27">是</span><span class="love-char" style="--i:28">不</span><span class="love-char" style="--i:29">是</span>
+        <span class="love-char" style="--i:30">挺</span><span class="love-char" style="--i:31">莫</span><span class="love-char" style="--i:32">名</span><span class="love-char" style="--i:33">其</span><span class="love-char" style="--i:34">妙</span><span class="love-char" style="--i:35">的</span><span class="love-char" style="--i:36">？</span>
+      </div>
+    </section>
+
+    <!-- Section 8: 时间线 -->
     <section class="section sec-timeline">
       <h2 data-animate>我们的故事</h2>
       <div class="timeline">
